@@ -1,3 +1,15 @@
+results*
+*.out
+*.py~
+*_test.py*
+__pycache__
+*.sh*
+#*
+*_codes*
+*.png*
+*.idea*
+*plots/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
