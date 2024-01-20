@@ -5,14 +5,14 @@ import selfe_vap_liq
 import selfe_bulk
 from numerical_param import*
 
-def mgrf_1plate(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain, epsilon):
+def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain, epsilon):
     
     print('selfe_ratio= ' + str(selfe_ratio))
     grid_points = len(psi_guess)
     bounds = (0,domain)
     Lz = bounds[1]
     n_bulk = n_bulk1
-
+    psi_G = psi_guess[-1]
     psi_g = np.copy(psi_guess)
     eta_profile=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
     uself_profile = selfe_vap_liq.uself_complete(nconc_guess,n_bulk1,n_bulk2,rad_ions,valency,domain,epsilon)
@@ -71,7 +71,8 @@ def mgrf_1plate(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,
 
         # Boundary conditions
         problem.add_equation("dz(psi)(z=0) = 0")
-        problem.add_equation("dz(psi)(z=Lz) = 0")
+        #problem.add_equation("dz(psi)(z=Lz) = 0")
+        problem.add_equation("(psi)(z=Lz) = psi_G")
 
         # Initial Guess
         psi['g'] = psi_g
@@ -88,7 +89,7 @@ def mgrf_1plate(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,
 
         psi.change_scales(1)
         psi_g = psi['g']
-        #print('PB done')
+        print('PB done')
         n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk,equal_vols)
         uself_profile = selfe_vap_liq.uself_complete(n_profile, n_bulk1,n_bulk2,rad_ions, valency, domain,epsilon)
         #print('selfe_done in the loop')
@@ -107,7 +108,7 @@ def mgrf_1plate(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,
         del coords,dist,zbasis,z,psi,tau_1,tau_2,dz,lift_basis,lift,problem,solver,pert_norm,c0,c1,boltz0,boltz1
 
         p = p+1
-        if p%10==0:
+        if p%1==0:
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))
 
     q_profile = calculate.charge_density(n_profile, valency)

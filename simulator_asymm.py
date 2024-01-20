@@ -1,12 +1,15 @@
 from numerical_param import *
 import num_concn
 import energy_vap_liq
-import coexist_symm
+import coexist_asymm
+import poisson_interface
+import mgrf_vap_liq
+
 from physical_param_asymm import *
 start = timeit.default_timer()
 
 # Argument parser to accept the input files                                                                                                                                                                        
-parser = argparse.ArgumentParser(description='Code to calculate EDL structure using MGRF Theory')
+parser = argparse.ArgumentParser(description='Code to calculate EDL structure using MGRF Theory with mean-field PB as an initial guess')
 parser.add_argument('input_files', nargs='+', help='Paths to the input files for physical parameters')
 args = parser.parse_args()
 
@@ -19,14 +22,15 @@ input_physical = importlib.import_module(module_name)
 variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
 (locals().update(variables))
 
-concns = [1e-07*c_max, 0.1*c_max]
-n_bulk1, n_bulk2 = coexist_symm.binodal(concns,valency,rad_ions,vol_sol,epsilon_s)
-print(n_bulk1,n_bulk2)
+concns_psi = [2.11749617e-05, 116.27305708, 7.948925618876456]
+n_bulk1, n_bulk2, psi_2 = coexist_asymm.binodal(concns_psi,valency,rad_ions,vol_sol,epsilon_s)
+print(n_bulk1,n_bulk2, psi_2)
 nconc_complete, domain = num_concn.nguess_tanh(n_bulk1,n_bulk2,valency,domain_1,domain_2,epsilon_s,N_grid)
 
+psi_complete = poisson_interface.poisson_interface(nconc_complete,valency,psi_2,N_grid,domain,epsilon_s)
+
 # The EDL structure calculations start here
-psi_complete= np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_complete(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_vap_liq.mgrf_vap_liq(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 print(nconc_complete[0:5])
 tension =energy_vap_liq.grandfe_mgrf_1plate(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)

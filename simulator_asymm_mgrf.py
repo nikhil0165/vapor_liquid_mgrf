@@ -2,12 +2,12 @@ from numerical_param import *
 import num_concn
 import energy_vap_liq
 from physical_param_asymm import *
-import coexist_symm
+
 start = timeit.default_timer()
 
 # Argument parser to accept the input files
 parser = argparse.ArgumentParser(
-    description = 'Code to calculate EDL structure using MGRF Theory with MGRF as an initial guess')
+    description = 'Code to calculate EDL structure using MGRF Theory with mean-field PB as an initial guess')
 parser.add_argument('input_files',nargs = '+',help = 'Paths to the input files for physical parameters')
 args = parser.parse_args()
 
@@ -21,7 +21,7 @@ variables = {name: value for name,value in input_physical.__dict__.items() if no
 (locals().update(variables))
 
 output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star_in,5)) + '_' + str(round(float(domain_1_in),2)) + '_' + str(round(float(domain_2_in),2)) + '_' + str(round(rad_ions_d[0] / pow(10,-10),2)) + '_' + str(round(rad_sol_d / pow(10,-10),2))
+file_name = str(round(T_star,5)) + '_' + str(round(float(domain_1_in),2)) + '_' + str(round(float(domain_2_in),2)) + '_' + str(round(rad_ions_d[0] / pow(10,-10),2)) + '_' + str(round(rad_sol_d / pow(10,-10),2))
 
 with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
@@ -32,11 +32,9 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     domain = np.array(file['domain'])
 
 
-n_bulk1, n_bulk2 = coexist_symm.binodal([n_bulk1[0],n_bulk2[0]],valency,rad_ions,vol_sol,epsilon_s)
-
 # The EDL structure calculations start here
 psi_complete = np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete,q_complete,z,res = num_concn.nconc_complete(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete,q_complete,z,res = num_concn.nconc_complete(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s,equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5))
 print('MGRF_done')
 print(nconc_complete[0:5])
 tension = energy_vap_liq.grandfe_mgrf_1plate(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)

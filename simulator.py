@@ -42,7 +42,10 @@ psi_complete, nconc_complete = calculate.interpolator(psi_complete,nconc_complet
 print(len(psi_complete))                                                                                                                                                                                 
 print(len(nconc_complete))       
     
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_1plate.mgrf_1plate(psi_complete,nconc_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_1plate.mgrf_vap_liq(psi_complete,nconc_complete,
+                                                                                         n_bulk,valency,rad_ions,
+                                                                                         vol_ions,vol_sol,sigma,domain,
+                                                                                         epsilon_s)
 grandfe =0# energy_1plate.grandfe_mgrf_1plate(psi_complete,nconc_complete,uself_complete,n_bulk,valency,rad_ions,vol_ions,vol_sol,sigma,domain,epsilon_s)
 
 print('MGRF done')

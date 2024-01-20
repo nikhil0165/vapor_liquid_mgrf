@@ -1,5 +1,3 @@
-import numpy as np
-
 from packages import *
 from numerical_param import *
 import calculate
@@ -8,7 +6,7 @@ import selfe_bulk
 
 # function to calculate concn profiles for mean-field PB
 def nconc_pb(psi, valency, n_bulk):
-    return n_bulk * np.exp(-np.array(valency) * psi[:,np.newaxis] )
+    return n_bulk * np.exp(-np.array(valency) * psi[:,np.newaxis])
 
 def nguess_tanh(n_bulk1,n_bulk2,valency,domain_1, domain_2, epsilon,grid_points):
     n_guess = np.zeros((grid_points,len(n_bulk1)),dtype=np.longdouble)
@@ -23,7 +21,7 @@ def nguess_tanh(n_bulk1,n_bulk2,valency,domain_1, domain_2, epsilon,grid_points)
     zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,domain_1*lambda1 + domain_2*lambda2))
     z = np.squeeze(dist.local_grids(zbasis))
 
-    n_guess = np.multiply(p[:,np.newaxis],np.tanh((z - domain_1 * lambda1) / lambda2)) + q[:,np.newaxis]
+    n_guess = np.multiply(p[:,np.newaxis],np.tanh((z - domain_1 * lambda1) / lambda1)) + q[:,np.newaxis]
     n_guess = n_guess.T
     return n_guess, domain_1*lambda1 + domain_2*lambda2
 
@@ -41,7 +39,7 @@ def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_b
     return n_profile,coeffs
 
 # function to calculate concentration profile for given psi profile and bulk conditions, n_initial is the initial guess
-def nconc_complete(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, vol_sol, domain, epsilon,equal_vols):
+def nconc_complete(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, vol_sol, domain, epsilon):
 
     n_bulk = n_bulk1
     eta_bulk = calculate.eta_loc(n_bulk, vol_ions, vol_sol)
@@ -51,6 +49,7 @@ def nconc_complete(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, 
     n_bulk_profile = np.multiply(np.ones((nodes,len(valency))),n_bulk)
     uself_bulk = selfe_bulk.uselfb_numerical(n_bulk_profile,n_bulk1,rad_ions, valency,domain,epsilon)
 
+    equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5)
     # profile variables
     n_profile = np.copy(n_initial)
     n_guess = np.copy(n_initial)
@@ -85,6 +84,5 @@ def nconc_complete(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, 
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
     zbasis = d3.Chebyshev(coords['z'],size = nodes,bounds = bounds)
     z = np.squeeze(dist.local_grids(zbasis))
-
 
     return psi,n_profile, uself_profile,q_profile,z,res

@@ -4,10 +4,10 @@ from packages import *
 T_star= 0.05
 T_star_in = 0.066
 valency = np.array([2,-2]) # valency of primary salt
-born_radius = 1.5* pow(10, -10)
+born_radius = 2.0* pow(10, -10)
 rad_sol_d = born_radius
 domain_1= 10.0 #  this times debye huckel length of phase 1
-domain_2= 50.0 #  this times debye huckel length of phase 2
+domain_2= 10.0 #  this times debye huckel length of phase 2
 domain_1_in  = domain_1
 domain_2_in = domain_2
 
