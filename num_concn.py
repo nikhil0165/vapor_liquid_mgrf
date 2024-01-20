@@ -75,7 +75,7 @@ def nconc_complete(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, 
         uself_profile = selfe_vap_liq.uself_complete(n_guess,n_bulk1,n_bulk2, rad_ions, valency, domain,epsilon)
         eta_profile = calculate.eta_profile(n_guess,vol_ions,vol_sol)
         if p%10==0:
-            print('num='+str(convergence))
+            print('converg at iter = ' + str(p) + ' is ' + str(convergence))
         if p >= iter_max:
             print("too many iterations for convergence")
     q_profile = calculate.charge_density(n_guess,valency)
