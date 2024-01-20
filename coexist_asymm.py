@@ -58,7 +58,7 @@ def binodal(concns_psi,valency,rad_ions,v_sol,epsilon):
 
         dguess = np.linalg.solve(J, -G)
         guess1 = guess + dguess
-        convergence = max(abs(np.true_divide(dguess,guess)))
+        convergence = np.linalg.norm(dguess)/np.linalg.norm(guess)
         guess = ratio*guess1 + (1-ratio)*guess
         if p%1000==0:
             print('converg at iter = ' + str(p) + ' is ' + str(convergence))

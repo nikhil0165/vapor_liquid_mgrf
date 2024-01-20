@@ -48,10 +48,10 @@ def binodal(concns,valency,rad_ions,vol_sol,epsilon):
 
         dguess = np.linalg.solve(J, -G)
         guess1 = guess + dguess
-        convergence = max(abs(np.true_divide(dguess,guess)))
+        convergence = np.linalg.norm(dguess)/np.linalg.norm(guess)
         guess = phase_ratio*guess1 + (1-phase_ratio)*guess
         if p%1000==0:
-            print(convergence)
+            print('converg at iter = ' + str(p) + ' is ' + str(convergence))
         #print(np.linalg.norm(G))
         #print(np.linalg.norm(dguess))
         p = p+1

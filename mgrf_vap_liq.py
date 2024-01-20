@@ -70,7 +70,7 @@ def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions
         problem.add_equation("-lap(psi) + lift(tau_1,-1) + lift(tau_2,-2) = c0*boltz0(psi) + c1*boltz1(psi)")
 
         # Boundary conditions
-        problem.add_equation("dz(psi)(z=0) = 0")
+        problem.add_equation("(psi)(z=0) = 0")
         #problem.add_equation("dz(psi)(z=Lz) = 0")
         problem.add_equation("(psi)(z=Lz) = psi_G")
 
