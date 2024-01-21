@@ -41,13 +41,13 @@ def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_b
 # function to calculate concentration profile for given psi profile and bulk conditions, n_initial is the initial guess
 def nconc_complete(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, vol_sol, domain, epsilon):
 
-    n_bulk = n_bulk1
+    n_bulk = n_bulk1 # choose any one the bulk phases.
     eta_bulk = calculate.eta_loc(n_bulk, vol_ions, vol_sol)
     nodes = len(n_initial)
     bounds = (0,domain)
 
     n_bulk_profile = np.multiply(np.ones((nodes,len(valency))),n_bulk)
-    uself_bulk = selfe_bulk.uselfb_numerical(n_bulk_profile,n_bulk1,rad_ions, valency,domain,epsilon)
+    uself_bulk = selfe_bulk.uselfb_numerical(n_bulk_profile,n_bulk,rad_ions, valency,domain,epsilon)
 
     equal_vols = np.all(np.abs(vol_ions - vol_sol) < vol_sol * 1e-5)
     # profile variables

@@ -19,7 +19,7 @@ input_physical = importlib.import_module(module_name)
 variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
 (locals().update(variables))
 
-concns = [1e-07*c_max, 0.1*c_max]
+concns =  [0.00336264185956702, 1.26608114850045]
 n_bulk1, n_bulk2 = coexist_symm.binodal(concns,valency,rad_ions,vol_sol,epsilon_s)
 print(n_bulk1,n_bulk2)
 nconc_complete, domain = num_concn.nguess_tanh(n_bulk1,n_bulk2,valency,domain_1,domain_2,epsilon_s,N_grid)
@@ -29,7 +29,8 @@ psi_complete= np.zeros((len(nconc_complete)))
 psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_complete(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 print(nconc_complete[0:5])
-tension =energy_vap_liq.grandfe_mgrf_1plate(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,
+                                              rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print(tension)
 
 stop = timeit.default_timer()
@@ -49,7 +50,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
 
     # Storing scalar variables as attributes of the root group
     file.attrs['ec_charge'] = ec
-    file.attrs['char_length'] = l_b
+    file.attrs['char_length'] = l_c
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
     file.attrs['domain_1'] = domain_1
@@ -72,6 +73,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['tolerance_num'] = tolerance_num
     file.attrs['tolerance_greens'] = tolerance_greens
     file.attrs['residual'] = res
+    file.attrs['c_max'] = c_max
     
     # Storing parameter arrays
     file.create_dataset('valency', data = valency)
@@ -97,7 +99,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     # Store free energy
     file.attrs['tension'] = tension # nondimensional
     file.attrs['tension_d'] = tension*(1/beta) # SI units
-    file.attrs['tension_star'] = tension*4*pi*epsilon_s*pow(2*rad_ions[0],3)/(valency[0]*valency[1])
+    file.attrs['tension_star'] = tension*4*pi*epsilon_s*pow(2*rad_ions[0],3)/abs(valency[0]*valency[1])
 
 
 

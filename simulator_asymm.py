@@ -33,7 +33,8 @@ psi_complete = poisson_interface.poisson_interface(nconc_complete,valency,psi_2,
 psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_vap_liq.mgrf_vap_liq(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 print(nconc_complete[0:5])
-tension =energy_vap_liq.grandfe_mgrf_1plate(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,
+                                              rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print(tension)
 
 stop = timeit.default_timer()

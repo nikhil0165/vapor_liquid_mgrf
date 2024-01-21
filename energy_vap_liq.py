@@ -4,7 +4,7 @@ import selfe_vap_liq
 import selfe_bulk
 
 # free energy from mgrf theory for vap_liquid interface
-def grandfe_mgrf_1plate(psi, n_profile, uself_profile,n_bulk1,n_bulk2, valency,rad_ions, vol_ions, vol_sol, domain, epsilon):
+def grandfe_mgrf_vap_liq(psi, n_profile, uself_profile,n_bulk1,n_bulk2, valency,rad_ions, vol_ions, vol_sol, domain, epsilon):
 
     nodes = len(n_profile)-1
     n_bulk = n_bulk1
@@ -31,13 +31,13 @@ def grandfe_mgrf_1plate(psi, n_profile, uself_profile,n_bulk1,n_bulk2, valency,r
     grandfe = grandfe + (1 / vol_sol) * np.sum(np.log(1 - vol_local) * dz)
 
     for k in range(0, len(taus)):
-            utau = utau + 0.5*weights[k]*selfe_vap_liq.uself_complete(sqrt(0.5*taus[k]+0.5)*n_profile,n_bulk1,n_bulk2,rad_ions, valency,domain, epsilon)
+            utau = utau + 0.5*weights[k]*selfe_vap_liq.uself_complete(sqrt(0.5*taus[k]+0.5)*n_profile,sqrt(0.5*taus[k]+0.5)*n_bulk1,sqrt(0.5*taus[k]+0.5)*n_bulk2,rad_ions, valency,domain, epsilon)
 
     utau_local = 0.5 * (utau[:-1] + utau[1:])
     grandfe = grandfe + np.sum(n_local * utau_local * dz[:, np.newaxis])
     grandfe = grandfe - np.sum(n_local * u_local * dz[:, np.newaxis])
 
-    return grandfe - 2*grandfe_bulk
+    return grandfe - grandfe_bulk
 
 # free energy from mgrf theory for bulk solution
 

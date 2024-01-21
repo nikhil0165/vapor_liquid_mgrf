@@ -72,7 +72,7 @@ def Gcap_full(n_profile,n_bulk1,n_bulk2,valency,s,domain,epsilon): # function fo
 
     omega_sqr = dist.Field(bases = zbasis)
     omega_sqr['g'] = s * s + calculate.kappa_sqr_profile(n_profile,valency,epsilon)
-    omega_b1 = np.sqrt(s * s + calculate.kappa_sqr(n_bulk1,valency,epsilon))
+    omega_b1 = np.sqrt(s*s + calculate.kappa_sqr(n_bulk1,valency,epsilon))
     omega_b2 = np.sqrt(s*s + calculate.kappa_sqr(n_bulk2,valency,epsilon))
     omega_min = min(omega_b1,omega_b2,np.min(np.sqrt(omega_sqr['g'])))
 

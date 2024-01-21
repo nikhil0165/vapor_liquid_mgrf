@@ -1,7 +1,7 @@
 from packages import *
 
 ## Global Input Variables, All quantities are in SI unit _d means dimensional
-T_star= 0.05
+T_star= 0.06
 T_star_in = 0.066
 valency = np.array([2,-2]) # valency of primary salt
 born_radius = 2.0* pow(10, -10)
@@ -58,7 +58,7 @@ rad_ions = np.true_divide(rad_ions_d,l_c)
 rad_sol  = rad_sol_d/l_c
 vol_sol = vol_sol_d/vol_c
 vol_ions = np.true_divide(vol_ions_d,vol_c)
-c_max = 1/vol_sol
+c_max = 1/pow(2*rad_ions_d[0],3)
 
 
 
