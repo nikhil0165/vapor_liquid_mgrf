@@ -5,13 +5,13 @@ import selfe_vap_liq
 import selfe_bulk
 from numerical_param import*
 
-def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain, epsilon):
+def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain, epsilon):
     
     print('selfe_ratio= ' + str(selfe_ratio))
     grid_points = len(psi_guess)
     bounds = (0,domain)
     Lz = bounds[1]
-    n_bulk = n_bulk1
+    n_bulk = n_bulk2
     psi_G = psi_guess[-1]
     psi_g = np.copy(psi_guess)
     eta_profile=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
@@ -28,7 +28,7 @@ def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions
     vol_diff = np.abs(vol_ions - vol_sol)
     equal_vols = np.all(vol_diff < vol_sol * 1e-5)
 
-    n_profile, coeffs = num_concn.nconc_mgrf(psi_g, uself_profile, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk, equal_vols)
+    n_profile, coeffs = num_concn.nconc_mgrf(psi_g, uself_profile, eta_profile, uself_bulk, n_bulk, valency, vol_ions, psi2,eta_bulk, equal_vols)
     coeffs = coeffs/epsilon
 
     Z = None
@@ -55,7 +55,7 @@ def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions
         lift = lambda A, n: d3.Lift(A, lift_basis, n)
         c0 = dist.Field(bases = zbasis)
         c1 = dist.Field(bases = zbasis)
-        n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions,eta_bulk, equal_vols)
+        n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions,psi2,eta_bulk, equal_vols)
         coeffs = coeffs/epsilon
 
         # lambda function for RHS, dedalus understands lambda functions can differentiate it for newton iteration
@@ -89,8 +89,8 @@ def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions
 
         psi.change_scales(1)
         psi_g = psi['g']
-        print('PB done')
-        n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions, eta_bulk,equal_vols)
+        #print('PB done')
+        n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions,psi2, eta_bulk,equal_vols)
         uself_profile = selfe_vap_liq.uself_complete(n_profile, n_bulk1,n_bulk2,rad_ions, valency, domain,epsilon)
         #print('selfe_done in the loop')
         convergence_tot = np.true_divide(np.linalg.norm(uself_profile - uself),np.linalg.norm(uself))
@@ -108,7 +108,7 @@ def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,valency,rad_ions,vol_ions
         del coords,dist,zbasis,z,psi,tau_1,tau_2,dz,lift_basis,lift,problem,solver,pert_norm,c0,c1,boltz0,boltz1
 
         p = p+1
-        if p%1==0:
+        if p%10==0:
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))
 
     q_profile = calculate.charge_density(n_profile, valency)

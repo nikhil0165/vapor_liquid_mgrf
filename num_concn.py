@@ -8,27 +8,44 @@ import selfe_bulk
 def nconc_pb(psi, valency, n_bulk):
     return n_bulk * np.exp(-np.array(valency) * psi[:,np.newaxis])
 
-def nguess_tanh(n_bulk1,n_bulk2,valency,domain_1, domain_2, epsilon,grid_points):
+def nguess_symm(n_bulk1,n_bulk2,valency,int_width, epsilon,grid_points):
     n_guess = np.zeros((grid_points,len(n_bulk1)),dtype=np.longdouble)
     lambda1= 1/calculate.kappa_loc(n_bulk1,valency,epsilon)
-    lambda2 = 1/calculate.kappa_loc(n_bulk2,valency,epsilon)
 
     p = (n_bulk2-n_bulk1)/2
     q = (n_bulk2+n_bulk1)/2
 
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
-    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,domain_1*lambda1 + domain_2*lambda2))
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,2*int_width*lambda1))
     z = np.squeeze(dist.local_grids(zbasis))
 
-    n_guess = np.multiply(p[:,np.newaxis],np.tanh((z - domain_1 * lambda1) / lambda1)) + q[:,np.newaxis]
+    n_guess = np.multiply(p[:,np.newaxis],np.tanh((z - int_width * lambda1) / lambda1)) + q[:,np.newaxis]
     n_guess = n_guess.T
-    return n_guess, domain_1*lambda1 + domain_2*lambda2
+    return n_guess, 2*int_width*lambda1
+
+def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width, epsilon,grid_points):
+    n_guess = np.zeros((grid_points,len(n_bulk1)),dtype=np.longdouble)
+    lambda1= 1/calculate.kappa_loc(n_bulk1,valency,epsilon)
+
+    p = (n_bulk2-n_bulk1)/2
+    q = (n_bulk2+n_bulk1)/2
+
+    coords = d3.CartesianCoordinates('z')
+    dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,2*int_width*lambda1))
+    z = np.squeeze(dist.local_grids(zbasis))
+
+    n_guess = np.multiply(p[:,np.newaxis],np.tanh((z - int_width* lambda1) / lambda1)) + q[:,np.newaxis]
+    n_guess = n_guess.T
+
+    psi_guess = 0.5*psi2*np.tanh((z - int_width* lambda1) / lambda1) + 0.5*psi2
+    return n_guess, psi_guess, 2*int_width*lambda1
 
 # function to calculate num and coeffs for mgrf_vap_liq use
-def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_bulk, equal_vols):
+def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,psi2,eta_bulk, equal_vols):
     if equal_vols:
-        A = n_bulk* np.exp(-np.array(valency) * psi[:,np.newaxis] - (uself - uself_bulk) + vol_ions * eta_bulk)
+        A = n_bulk* np.exp(-np.array(valency) * (psi[:,np.newaxis]-psi2) - (uself - uself_bulk) + vol_ions * eta_bulk)
         coeffs = valency * n_bulk* np.exp(-(uself - uself_bulk) + vol_ions * eta_bulk)
         denom = 1 + np.sum(A * vol_ions, axis=1)
         n_profile= np.true_divide(A,denom[:,np.newaxis])
@@ -41,7 +58,7 @@ def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,eta_b
 # function to calculate concentration profile for given psi profile and bulk conditions, n_initial is the initial guess
 def nconc_complete(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, vol_sol, domain, epsilon):
 
-    n_bulk = n_bulk1 # choose any one the bulk phases.
+    n_bulk = n_bulk2 # choose any one the bulk phases.
     eta_bulk = calculate.eta_loc(n_bulk, vol_ions, vol_sol)
     nodes = len(n_initial)
     bounds = (0,domain)

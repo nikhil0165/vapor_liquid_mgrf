@@ -19,26 +19,27 @@ input_physical = importlib.import_module(module_name)
 variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
 (locals().update(variables))
 
-concns =  [0.00336264185956702, 1.26608114850045]
+concns =  [0.012664693938156732, 0.4779206295007691]
 n_bulk1, n_bulk2 = coexist_symm.binodal(concns,valency,rad_ions,vol_sol,epsilon_s)
 print(n_bulk1,n_bulk2)
-nconc_complete, domain = num_concn.nguess_tanh(n_bulk1,n_bulk2,valency,domain_1,domain_2,epsilon_s,N_grid)
+nconc_complete, domain = num_concn.nguess_symm(n_bulk1,n_bulk2,valency,int_width,epsilon_s,N_grid)
 
 # The EDL structure calculations start here
 psi_complete= np.zeros((len(nconc_complete)))
 psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_complete(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
-print(nconc_complete[0:5])
+
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,
                                               rad_ions,vol_ions,vol_sol,domain,epsilon_s)
-print(tension)
+
+print( tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1]))
 
 stop = timeit.default_timer()
 print('Time: ', stop - start)
 
 
 output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star, 5)) + '_' + str(round(float(domain_1), 2)) + '_' + str(round(float(domain_2), 2)) + '_' + str(round(rad_ions_d[0] / pow(10, -10), 2)) + '_' + str(round(rad_sol_d/pow(10, -10), 2))
+file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width), 2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
 
 ### Create the output directory if it doesn't exist
 
@@ -53,8 +54,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['char_length'] = l_c
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
-    file.attrs['domain_1'] = domain_1
-    file.attrs['domain_2'] = domain_2
+    file.attrs['int_width'] = int_width
     file.attrs['domain'] = domain
     file.attrs['domain_d'] = domain*l_c
 

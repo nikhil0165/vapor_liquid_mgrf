@@ -21,7 +21,7 @@ variables = {name: value for name,value in input_physical.__dict__.items() if no
 (locals().update(variables))
 
 output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star_in,5)) + '_' + str(round(float(domain_1_in),2)) + '_' + str(round(float(domain_2_in),2)) + '_' + str(round(rad_ions_d[0] / pow(10,-10),2)) + '_' + str(round(rad_sol_d / pow(10,-10),2))
+file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width_in),2)) + '_' + str(round(rad_ions_d[0] / pow(10,-10),2)) + '_' + str(round(rad_sol_d / pow(10,-10),2))
 
 with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
@@ -29,25 +29,21 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     nconc_complete = np.array(file['nconc'])
     n_bulk1 = np.array(file['n_bulk1'])
     n_bulk2 = np.array(file['n_bulk2'])
-    domain = np.array(file['domain'])
-
-
-n_bulk1, n_bulk2 = coexist_symm.binodal([n_bulk1[0],n_bulk2[0]],valency,rad_ions,vol_sol,epsilon_s)
+    domain = file.attrs['domain']
 
 # The EDL structure calculations start here
 psi_complete = np.zeros((len(nconc_complete)))
 psi_complete,nconc_complete,uself_complete,q_complete,z,res = num_concn.nconc_complete(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
-print(nconc_complete[0:5])
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,
                                               rad_ions,vol_ions,vol_sol,domain,epsilon_s)
-print(tension)
+print( tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1]))
 
 stop = timeit.default_timer()
 print('Time: ',stop - start)
 
 output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star,5)) + '_' + str(round(float(domain_1),2)) + '_' + str(round(float(domain_2),2)) + '_' + str(round(rad_ions_d[0] / pow(10,-10),2)) + '_' + str(round(rad_sol_d / pow(10,-10),2))
+file_name = str(round(T_star,5)) + '_' + str(round(float(int_width),2))+ '_' + str(round(rad_ions_d[0] / pow(10,-10),2)) + '_' + str(round(rad_sol_d / pow(10,-10),2))
 
 ### Create the output directory if it doesn't exist
 
@@ -61,10 +57,9 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5','w') as file:
     file.attrs['char_length'] = l_b
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
-    file.attrs['domain_1'] = domain_1
-    file.attrs['domain_2'] = domain_2
+    file.attrs['int_width'] = int_width
     file.attrs['domain'] = domain
-    file.attrs['domain_d'] = domain * l_c
+    file.attrs['domain_d'] = domain*l_c
 
     # Storing numerical parameters as attributes of the root group
     file.attrs['s_conv'] = s_conv
