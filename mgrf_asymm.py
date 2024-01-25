@@ -29,7 +29,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
     # Checking if all molecules have same excluded volume
     vol_diff = np.abs(vol_ions - vol_sol)
     equal_vols = np.all(vol_diff < vol_sol * 1e-5)
-    print(equal_vols)
+
     n_profile, coeffs = num_concn.nconc_mgrf(psi_g, uself_profile, eta_profile, uself_bulk, n_bulk, valency, vol_ions, psi_bulk,eta_bulk, equal_vols)
     coeffs = coeffs/epsilon
 
