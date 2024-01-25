@@ -3,7 +3,7 @@ import num_concn
 import energy_vap_liq
 import coexist_asymm
 import poisson_interface
-import mgrf_vap_liq
+import mgrf_asymm
 
 from physical_param_asymm import *
 start = timeit.default_timer()
@@ -33,31 +33,35 @@ print("guess done")
 # print('Gauss Law_done')
 # print(psi_complete[0:5])
 
-# The EDL structure calculations start here
-#psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_vap_liq.mgrf_vap_liq(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+## The EDL structure calculations start here
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_asymm.mgrf_asymm(psi_complete,nconc_complete,
+                                                                                        n_bulk1,n_bulk2,psi2,valency,
+                                                                                        rad_ions,vol_ions,vol_sol,
+                                                                                        domain,epsilon_s)
 
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_asymm(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+#psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_asymm(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 
 print('MGRF_done')
 print(psi_complete[0:5])
-tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,
+tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,psi2,valency,
                                               rad_ions,vol_ions,vol_sol,domain,epsilon_s)
-print(tension)
+
+print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
 
 stop = timeit.default_timer()
 print('Time: ', stop - start)
 
 
-output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
+file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
 file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width), 2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
 
 ### Create the output directory if it doesn't exist
 
-if not os.path.exists(output_dir):
-    os.mkdir(output_dir)
+if not os.path.exists(file_dir):
+    os.mkdir(file_dir)
 
 # Writing everything in SI units
-with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
+with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
 
     # Storing scalar variables as attributes of the root group
     file.attrs['ec_charge'] = ec
@@ -67,6 +71,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['int_width'] =int_width
     file.attrs['domain'] = domain
     file.attrs['domain_d'] = domain*l_c
+    file.attrs['psi2'] = psi2
 
     # Storing numerical parameters as attributes of the root group
     file.attrs['s_conv'] = s_conv

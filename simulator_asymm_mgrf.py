@@ -1,5 +1,5 @@
 from numerical_param import *
-import num_concn
+import mgrf_asymm
 import energy_vap_liq
 from physical_param_asymm import *
 
@@ -20,50 +20,49 @@ input_physical = importlib.import_module(module_name)
 variables = {name: value for name,value in input_physical.__dict__.items() if not name.startswith('__')}
 (locals().update(variables))
 
-output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
+file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
 file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width_in),2)) + '_' + str(round(rad_ions_d[0],2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d ,2))
 
-with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
+with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
     psi_complete = np.array(file['psi'])
     nconc_complete = np.array(file['nconc'])
     n_bulk1 = np.array(file['n_bulk1'])
     n_bulk2 = np.array(file['n_bulk2'])
-    domain = np.array(file['domain'])
+    domain = file.attrs['domain']
+    psi2 = file.attrs['psi2']
 
 
 # The EDL structure calculations start here
 psi_complete = np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete,q_complete,z,res = num_concn.nconc_symm(psi_complete,nconc_complete,n_bulk1,
-                                                                                   n_bulk2,valency,rad_ions,vol_ions,
-                                                                                   vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete,q_complete,z,res = mgrf_asymm.mgrf_asymm(psi_complete,nconc_complete,n_bulk1, n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 print(nconc_complete[0:5])
-tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,
-                                              rad_ions,vol_ions,vol_sol,domain,epsilon_s)
-print(tension)
+tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
 
 stop = timeit.default_timer()
 print('Time: ',stop - start)
 
-output_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
+file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
 file_name = str(round(T_star,5)) + '_' + str(round(float(int_width_in),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2))
 
 ### Create the output directory if it doesn't exist
 
-if not os.path.exists(output_dir):
-    os.mkdir(output_dir)
+if not os.path.exists(file_dir):
+    os.mkdir(file_dir)
 
 # Writing everything in SI units
-with h5py.File(output_dir + '/mgrf_' + file_name + '.h5','w') as file:
+with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     # Storing scalar variables as attributes of the root group
     file.attrs['ec_charge'] = ec
-    file.attrs['char_length'] = l_b
+    file.attrs['char_length'] = l_c
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
-    file.attrs['int_width'] =int_width
+    file.attrs['int_width'] = int_width
     file.attrs['domain'] = domain
-    file.attrs['domain_d'] = domain*l_c
+    file.attrs['domain_d'] = domain * l_c
+    file.attrs['psi2'] = psi2
 
     # Storing numerical parameters as attributes of the root group
     file.attrs['s_conv'] = s_conv
@@ -80,6 +79,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5','w') as file:
     file.attrs['tolerance_num'] = tolerance_num
     file.attrs['tolerance_greens'] = tolerance_greens
     file.attrs['residual'] = res
+    file.attrs['c_max'] = c_max
 
     # Storing parameter arrays
     file.create_dataset('valency',data = valency)

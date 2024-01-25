@@ -5,7 +5,7 @@ import selfe_vap_liq
 import selfe_bulk
 from numerical_param import*
 
-def mgrf_vap_liq(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain, epsilon):
+def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain, epsilon):
     
     print('selfe_ratio= ' + str(selfe_ratio))
     grid_points = len(psi_guess)
