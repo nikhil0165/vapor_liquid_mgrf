@@ -33,7 +33,9 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
 
 # The EDL structure calculations start here
 psi_complete = np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete,q_complete,z,res = num_concn.nconc_complete(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete,q_complete,z,res = num_concn.nconc_symm(psi_complete,nconc_complete,n_bulk1,
+                                                                                   n_bulk2,valency,rad_ions,vol_ions,
+                                                                                   vol_sol,domain,epsilon_s)
 print('MGRF_done')
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,
                                               rad_ions,vol_ions,vol_sol,domain,epsilon_s)

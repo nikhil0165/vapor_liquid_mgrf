@@ -26,7 +26,9 @@ nconc_complete, domain = num_concn.nguess_symm(n_bulk1,n_bulk2,valency,int_width
 
 # The EDL structure calculations start here
 psi_complete= np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_complete(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_symm(psi_complete,nconc_complete,
+                                                                                     n_bulk1,n_bulk2,valency,rad_ions,
+                                                                                     vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,

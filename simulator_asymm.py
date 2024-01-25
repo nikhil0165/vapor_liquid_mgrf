@@ -23,17 +23,21 @@ variables = {name: value for name, value in input_physical.__dict__.items() if n
 (locals().update(variables))
 
 concns_psi = [0.067545094841168,2.54891321086623,1.86014594829533]
-n_bulk1, n_bulk2, psi_2 = coexist_asymm.binodal(concns_psi,valency,rad_ions,vol_sol,epsilon_s)
-print(n_bulk1,n_bulk2, psi_2)
-nconc_complete, psi_complete, domain = num_concn.nguess_asymm(n_bulk1,n_bulk2,psi_2,valency,int_width,epsilon_s,N_grid)
-print(nconc_complete[0:5])
+n_bulk1, n_bulk2, psi2 = coexist_asymm.binodal(concns_psi,valency,rad_ions,vol_sol,epsilon_s)
+print(n_bulk1,n_bulk2,psi2)
+nconc_complete, psi_complete, domain = num_concn.nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width,epsilon_s,N_grid)
+#print(nconc_complete[0:5])
+print("guess done")
 
-# psi_complete = poisson_interface.poisson_interface(nconc_complete,valency,psi_2,N_grid,domain,epsilon_s)
+# psi_complete = poisson_interface.poisson_interface(nconc_complete,valency,psi2,N_grid,domain,epsilon_s)
 # print('Gauss Law_done')
 # print(psi_complete[0:5])
 
 # The EDL structure calculations start here
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_vap_liq.mgrf_vap_liq(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi_2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+#psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_vap_liq.mgrf_vap_liq(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_asymm(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+
 print('MGRF_done')
 print(psi_complete[0:5])
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,valency,
