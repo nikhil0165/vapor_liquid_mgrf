@@ -2,11 +2,11 @@ from packages import *
 import calculate
 import num_concn
 
-def poisson_interface(n_profile,valency,psi_G,grid_points,domain,epsilon):
+def poisson_interface(n_profile,valency,psi_G,domain,epsilon):
 
     bounds = (0,domain)
     Lz = bounds[1]
-
+    grid_points = len(n_profile)
     # Bases
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords, dtype=np.float64) # No mesh for serial / automatic parallelization

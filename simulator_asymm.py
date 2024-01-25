@@ -22,7 +22,7 @@ input_physical = importlib.import_module(module_name)
 variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
 (locals().update(variables))
 
-concns_psi = [0.017934117967423, 6.75244853713324, 3.04456247171507]
+concns_psi = [0.067545094841168,2.54891321086623,1.86014594829533]
 n_bulk1, n_bulk2, psi_2 = coexist_asymm.binodal(concns_psi,valency,rad_ions,vol_sol,epsilon_s)
 print(n_bulk1,n_bulk2, psi_2)
 nconc_complete, psi_complete, domain = num_concn.nguess_asymm(n_bulk1,n_bulk2,psi_2,valency,int_width,epsilon_s,N_grid)
@@ -79,6 +79,7 @@ with h5py.File(output_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['tolerance_num'] = tolerance_num
     file.attrs['tolerance_greens'] = tolerance_greens
     file.attrs['residual'] = res
+    file.attrs['c_max'] = c_max
     
     # Storing parameter arrays
     file.create_dataset('valency', data = valency)

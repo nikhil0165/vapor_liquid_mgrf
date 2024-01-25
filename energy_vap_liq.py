@@ -10,8 +10,6 @@ def grandfe_mgrf_vap_liq(psi, n_profile, uself_profile,n_bulk1,n_bulk2, valency,
     n_bulk = n_bulk2
     n_bulk_profile = np.multiply(np.ones((nodes+1, len(valency))), n_bulk2)
     grandfe_bulk = grandfe_mgrf_bulk(n_bulk_profile,n_bulk, valency,rad_ions, vol_ions,vol_sol, domain, epsilon)
-    print(grandfe_bulk)
-    print(n_bulk)
     utau = np.zeros_like(uself_profile)
     taus, weights = np.polynomial.legendre.leggauss(grandfe_quads)
 
@@ -38,7 +36,6 @@ def grandfe_mgrf_vap_liq(psi, n_profile, uself_profile,n_bulk1,n_bulk2, valency,
     utau_local = 0.5 * (utau[:-1] + utau[1:])
     grandfe = grandfe + np.sum(n_local * utau_local * dz[:, np.newaxis])
     grandfe = grandfe - np.sum(n_local * u_local * dz[:, np.newaxis])
-    print(grandfe)
     return grandfe - grandfe_bulk
 
 # free energy from mgrf theory for bulk solution
