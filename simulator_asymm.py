@@ -25,7 +25,7 @@ variables = {name: value for name, value in input_physical.__dict__.items() if n
 concns_psi = [0.067545094841168,2.54891321086623,1.86014594829533]
 n_bulk1, n_bulk2, psi2 = coexist_asymm.binodal(concns_psi,valency,rad_ions,vol_sol,epsilon_s)
 print(n_bulk1,n_bulk2,psi2)
-nconc_complete, psi_complete, domain = num_concn.nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width,epsilon_s,N_grid)
+nconc_complete, psi_complete, domain,z = num_concn.nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width,epsilon_s,N_grid)
 #print(nconc_complete[0:5])
 print("guess done")
 
@@ -39,7 +39,7 @@ psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_asymm.mgrf_
                                                                                         rad_ions,vol_ions,vol_sol,
                                                                                         domain,epsilon_s)
 
-#psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_asymm(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_asymm(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 
 print('MGRF_done')
 print(psi_complete[0:5])
@@ -89,7 +89,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['tolerance_greens'] = tolerance_greens
     file.attrs['residual'] = res
     file.attrs['c_max'] = c_max
-    
+
     # Storing parameter arrays
     file.create_dataset('valency', data = valency)
     file.create_dataset('radii', data = rad_ions_d)
