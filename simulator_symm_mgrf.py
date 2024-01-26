@@ -1,6 +1,7 @@
 from numerical_param import *
 import mgrf_symm
 import energy_vap_liq
+import coexist_symm
 from physical_param_asymm import *
 start = timeit.default_timer()
 
@@ -29,6 +30,18 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     n_bulk1 = np.array(file['n_bulk1'])
     n_bulk2 = np.array(file['n_bulk2'])
     domain = file.attrs['domain']
+    c_max_in = file.attrs['c_max']
+
+# rescaling concentration profile
+if T_star_in != T_star:
+    p = (n_bulk2 - n_bulk1) / 2
+    q = (n_bulk2 + n_bulk1) / 2
+    nconc_complete = np.true_divide(nconc_complete - q[:,np.newaxis],p[:,np.newaxis])
+
+    n_bulk1, n_bulk2, psi2 = coexist_symm.binodal([n_bulk1[0]*(c_max/c_max_in),n_bulk2[0]*(c_max/c_max_in)],valency,rad_ions,vol_sol,epsilon_s)
+    p = (n_bulk2 - n_bulk1) / 2
+    q = (n_bulk2 + n_bulk1) / 2
+    nconc_complete = np.multiply(p[:,np.newaxis],nconc_complete) + q[:,np.newaxis]
 
 # The EDL structure calculations start here
 psi_complete = np.zeros((len(nconc_complete)))

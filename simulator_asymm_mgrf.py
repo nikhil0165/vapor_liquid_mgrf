@@ -1,6 +1,9 @@
+import numpy as np
+
 from numerical_param import *
 import mgrf_asymm
 import energy_vap_liq
+import coexist_asymm
 from physical_param_asymm import *
 
 start = timeit.default_timer()
@@ -31,7 +34,20 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     n_bulk2 = np.array(file['n_bulk2'])
     domain = file.attrs['domain']
     psi2 = file.attrs['psi2']
+    c_max_in = file.attrs['c_max']
 
+# rescaling concentration and potential profile
+if T_star_in != T_star:
+    psi_complete = psi_complete/psi2
+    p = (n_bulk2 - n_bulk1) / 2
+    q = (n_bulk2 + n_bulk1) / 2
+    nconc_complete = np.true_divide(nconc_complete - q[:,np.newaxis],p[:,np.newaxis])
+
+    n_bulk1, n_bulk2, psi2 = coexist_asymm.binodal([n_bulk1[0]*(c_max/c_max_in),n_bulk2[0]*(c_max/c_max_in),psi2],valency,rad_ions,vol_sol,epsilon_s)
+    p = (n_bulk2 - n_bulk1) / 2
+    q = (n_bulk2 + n_bulk1) / 2
+    psi_complete = psi_complete*psi2
+    nconc_complete = np.multiply(p[:,np.newaxis],nconc_complete) + q[:,np.newaxis]
 
 # The EDL structure calculations start here
 psi_complete = np.zeros((len(nconc_complete)))
@@ -45,7 +61,7 @@ stop = timeit.default_timer()
 print('Time: ',stop - start)
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star,5)) + '_' + str(round(float(int_width_in),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2))
+file_name = str(round(T_star,5)) + '_' + str(round(float(int_width),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2))
 
 ### Create the output directory if it doesn't exist
 

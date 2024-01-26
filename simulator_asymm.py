@@ -68,7 +68,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['char_length'] = l_c
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
-    file.attrs['int_width'] =int_width
+    file.attrs['int_width'] = int_width
     file.attrs['domain'] = domain
     file.attrs['domain_d'] = domain*l_c
     file.attrs['psi2'] = psi2
