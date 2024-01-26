@@ -81,7 +81,7 @@ def res_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon)
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
     zbasis = d3.Chebyshev(coords['z'],size = nodes,bounds = bounds,dealias = dealias)
-    q_profile = calculate.charge_density(n_profile, valency)
+    q_profile = charge_density(n_profile, valency)
 
     # Fields
     z = dist.local_grids(zbasis)
@@ -100,7 +100,7 @@ def res_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon)
     res[nodes-1] = slope_end
     res[1:nodes-1] = lap_psi['g'][1:nodes-1] + q_profile[1:nodes-1]/epsilon
     res[nodes] = np.linalg.norm(n_profile[0] - n_bulk1)
-    res[nodes+1] =  + np.linalg.norm(n_profile[-1] - n_bulk2)
+    res[nodes+1] = np.linalg.norm(n_profile[-1] - n_bulk2)
     
     return np.max(np.abs(res))
 
