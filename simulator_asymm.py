@@ -43,8 +43,7 @@ psi_complete,nconc_complete,uself_complete, q_complete, z, res= num_concn.nconc_
 
 print('MGRF_done')
 print(psi_complete[0:5])
-tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,psi2,valency,
-                                              rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+tension =0# energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
 

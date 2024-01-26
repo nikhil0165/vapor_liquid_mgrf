@@ -114,7 +114,8 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))
 
     q_profile = calculate.charge_density(n_profile, valency)
-    res= calculate.res_vap_liq(psi_g,q_profile,bounds,epsilon) + np.linalg.norm(n_profile[0] + n_profile[-1] - n_bulk1 - n_bulk2)
+    res= calculate.res_asymm(psi_g,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon)
+    
     print("Gauss's law residual for MGRF is is = " + str(res))
 
     return psi_g, n_profile,uself_profile,q_profile,Z, res

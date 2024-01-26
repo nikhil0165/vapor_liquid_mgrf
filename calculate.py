@@ -75,12 +75,13 @@ def interpolator(psi_complete,nconc_complete,bounds,new_grid): # function to cha
     return psi['g'], nconc
 
 
-def res_vap_liq(psi_profile,q_profile,bounds,epsilon): # calculate the residual of gauss law
+def res_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon): # calculate the residual of gauss law
 
     nodes = len(psi_profile)
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
     zbasis = d3.Chebyshev(coords['z'],size = nodes,bounds = bounds,dealias = dealias)
+    q_profile = calculate.charge_density(n_profile, valency)
 
     # Fields
     z = dist.local_grids(zbasis)
@@ -93,10 +94,13 @@ def res_vap_liq(psi_profile,q_profile,bounds,epsilon): # calculate the residual 
 
     slope_0 = grad_psi(z = 0).evaluate()['g'][0]
     slope_end = grad_psi(z = bounds[1]).evaluate()['g'][0]
-    res = np.zeros(nodes)
+    res = np.zeros(nodes+2)
     
     res[0] = slope_0
     res[nodes-1] = slope_end
     res[1:nodes-1] = lap_psi['g'][1:nodes-1] + q_profile[1:nodes-1]/epsilon
+    res[nodes] = np.linalg.norm(n_profile[0] - n_bulk1)
+    res[nodes+1] =  + np.linalg.norm(n_profile[-1] - n_bulk2)
+    
     return np.max(np.abs(res))
 

@@ -3,6 +3,7 @@ from numerical_param import *
 import calculate
 import selfe_vap_liq
 import selfe_bulk
+
 def mgrf_symm(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, vol_sol, domain, epsilon):
 
     n_bulk = n_bulk2 # choose any one the bulk phases.
@@ -42,7 +43,8 @@ def mgrf_symm(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, vol_s
         if p >= iter_max:
             print("too many iterations for convergence")
     q_profile = calculate.charge_density(n_guess,valency)
-    res = np.linalg.norm(q_profile) + np.linalg.norm(n_profile[0] + n_profile[-1] - n_bulk1 - n_bulk2)
+
+    res = np.max(np.abs(q_profile)) + np.linalg.norm(n_profile[0] - n_bulk1) + np.linalg.norm(n_profile[-1] - n_bulk2)
 
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
