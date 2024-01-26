@@ -19,7 +19,7 @@ print(f'T_star_in = {T_star_in}')
 print(f'int_width: {int_width}')
 print(f'int_width_in: {int_width_in}')
 
-vol_sol_d = 4/3*pi*pow(rad_sol_d*pow(10,-10),3)
+vol_sol_d = 4/3*pi*pow(rad_sol_d,3)
 rad_ions_d = np.array([born_radius1, born_radius2])
 vol_ions_d = np.array([vol_sol_d,vol_sol_d])
 print(f'rad_ions_d: {rad_ions_d}')
@@ -55,8 +55,8 @@ conc_c = 1/vol_c # characteristic concentration
 epsilon_s = epsilon_s_d / epsilon_c
 rad_ions = np.true_divide(rad_ions_d* pow(10, -10),l_c)
 rad_sol  = rad_sol_d* pow(10, -10)/l_c
-vol_sol = vol_sol_d/vol_c
-vol_ions = np.true_divide(vol_ions_d,vol_c)
+vol_sol = vol_sol_d*pow(10,-30)/vol_c
+vol_ions = np.true_divide(vol_ions_d*pow(10,-30),vol_c)
 c_max = 1/vol_sol
 
 
