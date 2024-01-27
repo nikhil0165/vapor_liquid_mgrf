@@ -35,26 +35,34 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     domain = file.attrs['domain']
     psi2 = file.attrs['psi2']
     c_max_in = file.attrs['c_max']
+    z = np.array(file['z'])
 
 # rescaling concentration and potential profile
 if T_star_in != T_star:
-    psi_complete = psi_complete/psi2
-    p = (n_bulk2 - n_bulk1) / 2
-    q = (n_bulk2 + n_bulk1) / 2
-    nconc_complete = np.true_divide(nconc_complete - q,p)
 
+    psi_complete = psi_complete / psi2
     n_bulk1, n_bulk2, psi2 = coexist_asymm.binodal([n_bulk1[0]*(c_max/c_max_in),n_bulk2[0]*(c_max/c_max_in),psi2],valency,rad_ions,vol_sol,epsilon_s)
-    p = (n_bulk2 - n_bulk1) / 2
-    q = (n_bulk2 + n_bulk1) / 2
+    p,q = (n_bulk2[0]-n_bulk1[0])/2,  (n_bulk2[0]+n_bulk1[0])/2
     psi_complete = psi_complete*psi2
-    print(n_bulk1)
-    print(n_bulk2)
-    print(psi2)
-    nconc_complete = np.multiply(p,nconc_complete) + q
-    print(np.any(nconc_complete<0))
-    domain =(int_width1 + int_width2)*(1/calculate.kappa_loc(n_bulk1,valency,epsilon_s))
+    lambda1 = (1/calculate.kappa_loc(n_bulk1,valency,epsilon_s))
+    domain =(int_width1 + int_width2)*lambda1
 
-# The EDL structure calculations start here
+    coords = d3.CartesianCoordinates('z')
+    dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
+    zbasis = d3.Chebyshev(coords['z'],size = len(psi_complete),bounds =(0,domain),dealias = dealias)
+    z = np.squeeze(dist.local_grids(zbasis))
+
+    psi = dist.Field(name = 'psi',bases = zbasis)
+    psi['g'] = psi_complete
+    lap_psi = d3.Laplacian(psi).evaluate()
+    lap_psi.change_scales(1)
+    q_profile = -lap_psi['g'] * epsilon_s  # Gauss law
+    nconc0 = p * np.tanh((z - int_width1 * lambda1) / lambda1) + q
+    nconc1 = (q_profile - valency[0] * nconc0) / valency[1]
+    nconc_complete = np.c_[nconc0,nconc1]
+
+## The EDL structure calculations start here
+
 psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_asymm.mgrf_asymm(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 print(nconc_complete[0:5])

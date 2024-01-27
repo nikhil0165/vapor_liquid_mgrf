@@ -1,3 +1,5 @@
+import numpy as np
+
 from numerical_param import *
 import mgrf_symm
 import energy_vap_liq
@@ -29,6 +31,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
     psi_complete = np.array(file['psi'])
     nconc_complete = np.array(file['nconc'])
+    z = np.array(file['z'])
     n_bulk1 = np.array(file['n_bulk1'])
     n_bulk2 = np.array(file['n_bulk2'])
     domain = file.attrs['domain']
@@ -45,6 +48,7 @@ if T_star_in != T_star:
     q = (n_bulk2 + n_bulk1) / 2
     nconc_complete = np.multiply(p,nconc_complete) + q
     domain =(int_width1 + int_width2)*(1/calculate.kappa_loc(n_bulk1,valency,epsilon_s))
+
 
 # The EDL structure calculations start here
 psi_complete = np.zeros((len(nconc_complete)))
