@@ -74,9 +74,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['num_ratio'] = num_ratio
     file.attrs['selfe_ratio'] = selfe_ratio
     file.attrs['eta_ratio'] = eta_ratio
-    file.attrs['tolerance_mgrf'] = tolerance_mgrf
-    file.attrs['tolerance_pb'] = tolerance_pb
-    file.attrs['tolerance_num'] = tolerance_num
+    file.attrs['tolerance_mgrf_symm'] = tolerance_mgrf_symm
     file.attrs['tolerance_greens'] = tolerance_greens
     file.attrs['residual'] = res
     file.attrs['c_max'] = c_max

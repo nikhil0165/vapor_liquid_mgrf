@@ -26,7 +26,7 @@ def mgrf_symm(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, vol_s
     # Iteration
     convergence = np.inf
     p = 0
-    while (convergence > tolerance_num) and (p < iter_max):
+    while (convergence > tolerance_mgrf_symm) and (p < iter_max):
         p = p + 1
         if equal_vols:
             A = n_bulk* np.exp(-np.array(valency) * psi[:, np.newaxis] - (uself_profile - uself_bulk) + vol_ions * eta_bulk)
@@ -46,6 +46,7 @@ def mgrf_symm(psi, n_initial,n_bulk1,n_bulk2, valency, rad_ions, vol_ions, vol_s
 
     res = np.max(np.abs(q_profile)) + np.linalg.norm(n_profile[0] - n_bulk1) + np.linalg.norm(n_profile[-1] - n_bulk2)
 
+    print("Gauss's law residual for MGRF is is = " + str(res))
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
     zbasis = d3.Chebyshev(coords['z'],size = nodes,bounds = bounds)

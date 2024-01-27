@@ -38,12 +38,12 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
 if T_star_in != T_star:
     p = (n_bulk2 - n_bulk1) / 2
     q = (n_bulk2 + n_bulk1) / 2
-    nconc_complete = np.true_divide(nconc_complete - q[:,np.newaxis],p[:,np.newaxis])
+    nconc_complete = np.true_divide(nconc_complete - q,p)
 
     n_bulk1, n_bulk2 = coexist_symm.binodal([n_bulk1[0]*(c_max/c_max_in),n_bulk2[0]*(c_max/c_max_in)],valency,rad_ions,vol_sol,epsilon_s)
     p = (n_bulk2 - n_bulk1) / 2
     q = (n_bulk2 + n_bulk1) / 2
-    nconc_complete = np.multiply(p[:,np.newaxis],nconc_complete) + q[:,np.newaxis]
+    nconc_complete = np.multiply(p,nconc_complete) + q
     domain =(int_width1 + int_width2)*(1/calculate.kappa_loc(n_bulk1,valency,epsilon_s))
 
 # The EDL structure calculations start here
@@ -87,9 +87,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     file.attrs['num_ratio'] = num_ratio
     file.attrs['selfe_ratio'] = selfe_ratio
     file.attrs['eta_ratio'] = eta_ratio
-    file.attrs['tolerance_mgrf'] = tolerance_mgrf
-    file.attrs['tolerance_pb'] = tolerance_pb
-    file.attrs['tolerance_num'] = tolerance_num
+    file.attrs['tolerance_mgrf_symm'] = tolerance_mgrf_symm
     file.attrs['tolerance_greens'] = tolerance_greens
     file.attrs['residual'] = res
     file.attrs['c_max'] = c_max

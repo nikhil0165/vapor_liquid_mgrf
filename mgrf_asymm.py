@@ -38,7 +38,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
     # Solving the matrix
     convergence_tot = np.inf
     p=1
-    while(convergence_tot > tolerance_mgrf):
+    while(convergence_tot > tolerance_mgrf_asymm):
 
         # Bases
         coords = d3.CartesianCoordinates('z')
