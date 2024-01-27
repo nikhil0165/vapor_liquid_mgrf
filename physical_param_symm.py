@@ -7,8 +7,10 @@ valency = np.array([2,-2]) # valency of primary salt
 born_radius1 = 2.0
 born_radius2 = 2.0
 rad_sol_d = max(born_radius1,born_radius2)
-int_width= 10.0 #  this times debye huckel length of phase 1
-int_width_in  = int_width
+int_width1= 10.0 #  this times debye huckel length of phase 1
+int_width1_in  = int_width1
+int_width2= 10.0
+int_width2_in = int_width2
 
 print(f'valency: {valency}')
 print(f'born_radius1 = {born_radius1}')
@@ -16,8 +18,10 @@ print(f'born_radius2 = {born_radius2}')
 print(f'rad_sol_d = {rad_sol_d}')
 print(f'T_star = {T_star}')
 print(f'T_star_in = {T_star_in}')
-print(f'int_width: {int_width}')
-print(f'int_width_in: {int_width_in}')
+print(f'int_width1: {int_width1}')
+print(f'int_width1_in: {int_width1_in}')
+print(f'int_width2: {int_width2}')
+print(f'int_width2_in: {int_width2_in}')
 
 vol_sol_d = 4/3*pi*pow(rad_sol_d,3)
 rad_ions_d = np.array([born_radius1, born_radius2])

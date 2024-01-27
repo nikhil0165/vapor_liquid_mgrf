@@ -3,6 +3,7 @@ import mgrf_symm
 import num_concn
 import energy_vap_liq
 import coexist_symm
+from physical_param_symm import *
 
 start = timeit.default_timer()
 
@@ -27,16 +28,14 @@ n_bulk1, n_bulk2 = coexist_symm.binodal(concns,valency,rad_ions,vol_sol,epsilon_
 print(n_bulk1,n_bulk2)
 
 ## Initial concentration profile guess for non-linear solver
-nconc_complete, domain = num_concn.nguess_symm(n_bulk1,n_bulk2,valency,int_width,epsilon_s,N_grid)
+nconc_complete, domain = num_concn.nguess_symm(n_bulk1,n_bulk2,valency,int_width1,int_width2,epsilon_s,N_grid)
 
 # The EDL structure calculations start here
 psi_complete= np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_symm.mgrf_symm(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,
-                                                                                     vol_ions,vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_symm.mgrf_symm(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 
-tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2, 0,valency,
-                                              rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2, 0,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
 
@@ -45,7 +44,7 @@ print('Time: ', stop - start)
 
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width), 2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
+file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width1), 2)) + '_' + str(round(float(int_width2), 2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
 
 ### Create the output directory if it doesn't exist
 
@@ -60,7 +59,8 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.attrs['char_length'] = l_c
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
-    file.attrs['int_width'] = int_width
+    file.attrs['int_width1'] = int_width1
+    file.attrs['int_width2'] = int_width2
     file.attrs['domain'] = domain
     file.attrs['domain_d'] = domain*l_c
 

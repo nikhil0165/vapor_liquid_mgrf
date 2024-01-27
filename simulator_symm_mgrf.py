@@ -2,6 +2,8 @@ from numerical_param import *
 import mgrf_symm
 import energy_vap_liq
 import coexist_symm
+import calculate
+from physical_param_symm import *
 
 start = timeit.default_timer()
 
@@ -21,7 +23,7 @@ variables = {name: value for name,value in input_physical.__dict__.items() if no
 (locals().update(variables))
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width_in),2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
+file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width1_in),2)) + '_' + str(round(float(int_width2_in),2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
 
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
@@ -38,26 +40,25 @@ if T_star_in != T_star:
     q = (n_bulk2 + n_bulk1) / 2
     nconc_complete = np.true_divide(nconc_complete - q[:,np.newaxis],p[:,np.newaxis])
 
-    n_bulk1, n_bulk2, psi2 = coexist_symm.binodal([n_bulk1[0]*(c_max/c_max_in),n_bulk2[0]*(c_max/c_max_in)],valency,rad_ions,vol_sol,epsilon_s)
+    n_bulk1, n_bulk2 = coexist_symm.binodal([n_bulk1[0]*(c_max/c_max_in),n_bulk2[0]*(c_max/c_max_in)],valency,rad_ions,vol_sol,epsilon_s)
     p = (n_bulk2 - n_bulk1) / 2
     q = (n_bulk2 + n_bulk1) / 2
     nconc_complete = np.multiply(p[:,np.newaxis],nconc_complete) + q[:,np.newaxis]
+    domain =(int_width1 + int_width2)*(1/calculate.kappa_loc(n_bulk1,valency,epsilon_s))
 
 # The EDL structure calculations start here
 psi_complete = np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_symm.mgrf_symm(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,
-                                                                                     vol_ions,vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_symm.mgrf_symm(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 
-tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,0,valency,
-                                              rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,0,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
 
 stop = timeit.default_timer()
 print('Time: ',stop - start)
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width), 2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
+file_name = str(round(T_star,5)) + '_' + str(round(float(int_width1),2)) + '_' + str(round(float(int_width2),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(rad_sol_d,2))
 
 ### Create the output directory if it doesn't exist
 
@@ -68,12 +69,13 @@ if not os.path.exists(file_dir):
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     # Storing scalar variables as attributes of the root group
     file.attrs['ec_charge'] = ec
-    file.attrs['char_length'] = l_b
+    file.attrs['char_length'] = l_c
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
-    file.attrs['int_width'] = int_width
+    file.attrs['int_width1'] = int_width1
+    file.attrs['int_width2'] = int_width2
     file.attrs['domain'] = domain
-    file.attrs['domain_d'] = domain*l_c
+    file.attrs['domain_d'] = domain * l_c
 
     # Storing numerical parameters as attributes of the root group
     file.attrs['s_conv'] = s_conv
@@ -90,6 +92,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     file.attrs['tolerance_num'] = tolerance_num
     file.attrs['tolerance_greens'] = tolerance_greens
     file.attrs['residual'] = res
+    file.attrs['c_max'] = c_max
 
     # Storing parameter arrays
     file.create_dataset('valency',data = valency)
@@ -115,8 +118,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     # Store free energy
     file.attrs['tension'] = tension  # nondimensional
     file.attrs['tension_d'] = tension * (1 / beta)  # SI units
-    file.attrs['tension_star'] = tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])
-
+    file.attrs['tension_star'] = tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3) / abs(valency[0] * valency[1])
 
 
 

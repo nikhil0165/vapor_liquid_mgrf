@@ -24,7 +24,7 @@ variables = {name: value for name,value in input_physical.__dict__.items() if no
 (locals().update(variables))
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width_in),2)) + '_' + str(round(rad_ions_d[0],2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d ,2))
+file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width1_in),2)) + '_' + str(round(float(int_width2_in),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2))
 
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
@@ -61,7 +61,7 @@ stop = timeit.default_timer()
 print('Time: ',stop - start)
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star,5)) + '_' + str(round(float(int_width),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2))
+file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width1), 2)) + '_' + str(round(float(int_width2), 2)) + '_' + str(round(rad_ions_d[0],2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
 
 ### Create the output directory if it doesn't exist
 
@@ -75,7 +75,8 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     file.attrs['char_length'] = l_c
     file.attrs['beta'] = beta
     file.attrs['epsilon_s'] = epsilonr_s_d
-    file.attrs['int_width'] = int_width
+    file.attrs['int_width1'] = int_width1
+    file.attrs['int_width2'] = int_width2
     file.attrs['domain'] = domain
     file.attrs['domain_d'] = domain * l_c
     file.attrs['psi2'] = psi2

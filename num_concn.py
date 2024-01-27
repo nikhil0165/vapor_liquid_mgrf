@@ -9,7 +9,7 @@ import poisson_interface
 def nconc_pb(psi, valency, n_bulk):
     return n_bulk * np.exp(-np.array(valency) * psi[:,np.newaxis])
 
-def nguess_symm(n_bulk1,n_bulk2,valency,int_width, epsilon,grid_points):
+def nguess_symm(n_bulk1,n_bulk2,valency,int_width1,int_width2, epsilon,grid_points):
     lambda1= 1/calculate.kappa_loc(n_bulk1,valency,epsilon)
 
     p = (n_bulk2-n_bulk1)/2
@@ -17,12 +17,12 @@ def nguess_symm(n_bulk1,n_bulk2,valency,int_width, epsilon,grid_points):
 
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
-    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,2*int_width*lambda1))
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,(int_width1+int_width2)*lambda1))
     z = np.squeeze(dist.local_grids(zbasis))
 
-    n_guess = np.multiply(p[:,np.newaxis],np.tanh((z - int_width * lambda1) / lambda1)) + q[:,np.newaxis]
+    n_guess = np.multiply(p[:,np.newaxis],np.tanh((z - int_width1 * lambda1) / lambda1)) + q[:,np.newaxis]
     n_guess = n_guess.T
-    return n_guess, 2*int_width*lambda1
+    return n_guess, (int_width1+int_width2)*lambda1
 
 # def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width, epsilon,grid_points):
 #     lambda1= 1/calculate.kappa_loc(n_bulk1,valency,epsilon)
@@ -41,7 +41,7 @@ def nguess_symm(n_bulk1,n_bulk2,valency,int_width, epsilon,grid_points):
 #     psi_guess = 0.5*psi2*np.tanh((z - int_width* lambda1) / lambda1) + 0.5*psi2
 #     return n_guess, psi_guess, 2*int_width*lambda1
 
-def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width, epsilon,grid_points):
+def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width1,int_width2, epsilon,grid_points):
 
     lambda1= 1/calculate.kappa_loc(n_bulk1,valency,epsilon)
     p = (n_bulk2[0]-n_bulk1[0])/2
@@ -49,10 +49,10 @@ def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width, epsilon,grid_points):
 
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
-    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,3*int_width*lambda1),dealias=3/2)
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,(int_width1+int_width2)*lambda1),dealias=3/2)
     z = np.squeeze(dist.local_grids(zbasis))
 
-    psi_guess = 0.5*psi2*np.tanh((z - 2*int_width* lambda1) / lambda1) + 0.5*psi2
+    psi_guess = 0.5*psi2*np.tanh((z - int_width1* lambda1) / lambda1) + 0.5*psi2
 
     psi = dist.Field(name = 'psi',bases = zbasis)
     psi['g'] = psi_guess
@@ -62,11 +62,11 @@ def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width, epsilon,grid_points):
 
     q_profile = -lap_psi['g']*epsilon # Gauss law
 
-    nconc0 = p*np.tanh((z - int_width* lambda1) / lambda1) + q
+    nconc0 = p*np.tanh((z - int_width1* lambda1) / lambda1) + q
     nconc1 = (q_profile - valency[0]*nconc0)/valency[1]
 
     n_guess= np.c_[nconc0,nconc1]
-    return n_guess, psi_guess, 2*int_width*lambda1, z
+    return n_guess, psi_guess, (int_width1+int_width2)*lambda1, z
 
 # function to calculate num and coeffs for mgrf_vap_liq use
 def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,psi_bulk,eta_bulk, equal_vols):
