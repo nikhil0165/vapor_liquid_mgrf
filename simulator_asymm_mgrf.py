@@ -50,10 +50,10 @@ if T_star_in != T_star:
     nconc_complete = np.multiply(p[:,np.newaxis],nconc_complete) + q[:,np.newaxis]
 
 # The EDL structure calculations start here
-psi_complete = np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete,q_complete,z,res = mgrf_asymm.mgrf_asymm(psi_complete,nconc_complete,n_bulk1, n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_asymm.mgrf_asymm(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 print(nconc_complete[0:5])
+
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
 

@@ -49,10 +49,10 @@ def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width, epsilon,grid_points):
 
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
-    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,2*int_width*lambda1),dealias=3/2)
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,3*int_width*lambda1),dealias=3/2)
     z = np.squeeze(dist.local_grids(zbasis))
 
-    psi_guess = 0.5*psi2*np.tanh((z - int_width* lambda1) / lambda1) + 0.5*psi2
+    psi_guess = 0.5*psi2*np.tanh((z - 2*int_width* lambda1) / lambda1) + 0.5*psi2
 
     psi = dist.Field(name = 'psi',bases = zbasis)
     psi['g'] = psi_guess
