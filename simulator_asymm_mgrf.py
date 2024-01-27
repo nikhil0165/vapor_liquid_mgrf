@@ -47,7 +47,11 @@ if T_star_in != T_star:
     p = (n_bulk2 - n_bulk1) / 2
     q = (n_bulk2 + n_bulk1) / 2
     psi_complete = psi_complete*psi2
+    print(n_bulk1)
+    print(n_bulk2)
+    print(psi2)
     nconc_complete = np.multiply(p,nconc_complete) + q
+    print(np.any(nconc_complete<0))
     domain =(int_width1 + int_width2)*(1/calculate.kappa_loc(n_bulk1,valency,epsilon_s))
 
 # The EDL structure calculations start here

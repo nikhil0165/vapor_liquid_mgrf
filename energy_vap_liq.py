@@ -8,7 +8,10 @@ def grandfe_mgrf_vap_liq(psi, n_profile, uself_profile,n_bulk1,n_bulk2, psi2 ,va
 
     nodes = len(n_profile)-1
     n_bulk = n_bulk2
-    psi_bulk = psi2 # if n_bulk = n_bulk2 then
+    if np.equal(n_bulk,n_bulk2):
+        psi_bulk = psi2 # if n_bulk = n_bulk2 then  psi2 otherise 0
+    else:
+        psi_bulk= 0
     n_bulk_profile = np.multiply(np.ones((nodes+1, len(valency))), n_bulk2)
     grandfe_bulk = grandfe_mgrf_bulk(n_bulk_profile,n_bulk, psi_bulk, valency,rad_ions, vol_ions,vol_sol, domain, epsilon)
     utau = np.zeros_like(uself_profile)

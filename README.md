@@ -69,7 +69,7 @@ python simulator_symm.py(or simulator_symm_mgrf.py) physical_param_symm.py
 
 python simulator_asymm.py(or simulator_asymm_mgrf.py) physical_param_asymm.py
 
-Note that numerical_param.py has been directly imported into simulator files as the numerical parameters are seldom changed. However one can easily parse them through the command line by changing the first section of simulator files.
+Note that numerical_param.py has been directly imported into the relavant files.
 
 ## Contact:
 This code was developed by Nikhil Agrawal in the lab of Prof. Rui Wang, Pitzer Center for Theoretical Chemistry, University of California, Berkeley, USA. If you need any help feel free to write to Nikhil at nikhilagrawal0165@gmail.com.  
