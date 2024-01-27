@@ -3,7 +3,7 @@ import mgrf_symm
 import num_concn
 import energy_vap_liq
 import coexist_symm
-from physical_param_asymm import *
+
 start = timeit.default_timer()
 
 # Argument parser to accept the input files                                                                                                                                                                        
