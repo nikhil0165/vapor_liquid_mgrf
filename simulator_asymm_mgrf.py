@@ -30,6 +30,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
     psi_complete = np.array(file['psi'])
     nconc_complete = np.array(file['nconc'])
+    uself_complete = np.array(file['uself'])
     n_bulk1 = np.array(file['n_bulk1'])
     n_bulk2 = np.array(file['n_bulk2'])
     domain = file.attrs['domain']
@@ -61,14 +62,14 @@ if T_star_in != T_star:
     nconc1 = (q_profile - valency[0] * nconc0) / valency[1]
     nconc_complete = np.c_[nconc0,nconc1]
 
-## The EDL structure calculations start here
+### The EDL structure calculations start here
 
 psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_asymm.mgrf_asymm(psi_complete,nconc_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
-print(nconc_complete[0:5])
+
 
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
-print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
+print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])))
 
 stop = timeit.default_timer()
 print('Time: ',stop - start)
@@ -76,7 +77,7 @@ print('Time: ',stop - start)
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
 file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width1), 2)) + '_' + str(round(float(int_width2), 2)) + '_' + str(round(rad_ions_d[0],2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
 
-### Create the output directory if it doesn't exist
+## Create the output directory if it doesn't exist
 
 if not os.path.exists(file_dir):
     os.mkdir(file_dir)
@@ -134,7 +135,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     # Store free energy
     file.attrs['tension'] = tension  # nondimensional
     file.attrs['tension_d'] = tension * (1 / beta)  # SI units
-    file.attrs['tension_star'] = tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3) / (valency[0] * valency[1])
+    file.attrs['tension_star'] =tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])
 
 
 

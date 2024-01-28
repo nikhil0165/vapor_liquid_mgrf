@@ -9,6 +9,8 @@ import poisson_interface
 def nconc_pb(psi, valency, n_bulk):
     return n_bulk * np.exp(-np.array(valency) * psi[:,np.newaxis])
 
+
+# function to calculate initial guess for symmeteric salts
 def nguess_symm(n_bulk1,n_bulk2,valency,int_width1,int_width2, epsilon,grid_points):
     lambda1= 1/calculate.kappa_loc(n_bulk1,valency,epsilon)
 
@@ -24,22 +26,7 @@ def nguess_symm(n_bulk1,n_bulk2,valency,int_width1,int_width2, epsilon,grid_poin
     n_guess = n_guess.T
     return n_guess, (int_width1+int_width2)*lambda1
 
-# def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width, epsilon,grid_points):
-#     lambda1= 1/calculate.kappa_loc(n_bulk1,valency,epsilon)
-#
-#     p = (n_bulk2-n_bulk1)/2
-#     q = (n_bulk2+n_bulk1)/2
-#
-#     coords = d3.CartesianCoordinates('z')
-#     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
-#     zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,2*int_width*lambda1))
-#     z = np.squeeze(dist.local_grids(zbasis))
-#
-#     n_guess = np.multiply(p[:,np.newaxis],np.tanh((z - int_width* lambda1) / lambda1)) + q[:,np.newaxis]
-#     n_guess = n_guess.T
-#
-#     psi_guess = 0.5*psi2*np.tanh((z - int_width* lambda1) / lambda1) + 0.5*psi2
-#     return n_guess, psi_guess, 2*int_width*lambda1
+# function to calculate initial guess for asymmeteric salts
 
 def nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width1,int_width2, epsilon,grid_points):
 
@@ -81,7 +68,6 @@ def nconc_mgrf(psi,uself,eta_profile,uself_bulk, n_bulk, valency, vol_ions,psi_b
         coeffs = valency* n_bulk * np.exp(np.array(valency)*psi_bulk -(uself - uself_bulk) - vol_ions* (eta_profile[:,np.newaxis] - eta_bulk))
     return n_profile,coeffs
 
-# function to calculate concentration profile for given psi profile and bulk conditions, n_initial is the initial guess
 
 
 # function to calculate concentration profile for given psi profile and bulk conditions, n_initial is the initial guess

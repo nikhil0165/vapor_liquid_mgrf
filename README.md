@@ -35,7 +35,7 @@ This file includes functions to calculate the self-energy profiles for the inter
 
 ## selfe_bulk.py
 
-This file includes functions to calculate the self-energy for the bulk solution based on the equations given in supplemental material of AAgrawal and Wang, [Phys. Rev. Lett. 2022, 129, 228001](https://doi.org/10.1103/PhysRevLett.129.228001). Note that although there is an analytical solution for self-energy in the bulk we calculate it numerically to cancel out the numerical errors between self-energy in interface and the bulk. The functions in this file use another file called greens_function_bulk.py which evaluates the fourier transform of the green's functions in the bulk.
+This file includes functions to calculate the self-energy for the bulk solution based on the equations given in supplemental material of Agrawal and Wang, [Phys. Rev. Lett. 2022, 129, 228001](https://doi.org/10.1103/PhysRevLett.129.228001). Note that although there is an analytical solution for self-energy in the bulk we calculate it numerically to cancel out the numerical errors between self-energy in interface and the bulk. The functions in this file use another file called greens_function_bulk.py which evaluates the fourier transform of the green's functions in the bulk.
 
 ## greens_function_vap_liq.py and greens_function_bulk.py
 

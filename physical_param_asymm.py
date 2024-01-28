@@ -1,16 +1,16 @@
 from packages import *
 
 ## Global Input Variables, All quantities are in SI unit _d means dimensional
-T_star= 0.06
+T_star= 0.07
 T_star_in = 0.07
 valency = np.array([2,-1]) # valency of primary salt
 born_radius1 = 2.0
 born_radius2 = 2.0
 rad_sol_d = max(born_radius1,born_radius2)
 int_width1= 20.0 #  this times debye huckel length of phase 1
-int_width1_in  = int_width1
+int_width1_in  = 20.0
 int_width2= 10.0
-int_width2_in = int_width2
+int_width2_in = 10.0
 
 print(f'valency: {valency}')
 print(f'born_radius1 = {born_radius1}')

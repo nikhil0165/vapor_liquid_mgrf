@@ -37,7 +37,7 @@ print('MGRF_done')
 print(psi_complete[0:5])
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 
-print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
+print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])))
 
 stop = timeit.default_timer()
 print('Time: ', stop - start)
@@ -105,5 +105,5 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     # Store free energy
     file.attrs['tension'] = tension # nondimensional
     file.attrs['tension_d'] = tension*(1/beta) # SI units
-    file.attrs['tension_star'] = tension*4*pi*epsilon_s*pow(2*rad_ions[0],3)/(valency[0]*valency[1])
+    file.attrs['tension_star'] = tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1]))
 

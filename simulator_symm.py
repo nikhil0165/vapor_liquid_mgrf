@@ -21,7 +21,7 @@ input_physical = importlib.import_module(module_name)
 variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
 (locals().update(variables))
 
-concns =  [0.012664693938156732, 0.4779206295007691] # initial guess for getting coexist_symm
+concns =  [0.012664693938156732, 0.4779206295007691] # initial guess for getting coexist_symm goes here
 
 ## Finding the two bulk phase concentrations at eqbm
 n_bulk1, n_bulk2 = coexist_symm.binodal(concns,valency,rad_ions,vol_sol,epsilon_s)
