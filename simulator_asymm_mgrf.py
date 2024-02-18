@@ -65,11 +65,14 @@ if T_star_in != T_star:
 
 ### The EDL structure calculations start here
 
+#psi_profile, n_profile = calculate.interpolator(psi_profile,n_profile,(0,z[-1]),N_grid)
+#print(len(psi_profile))
+
 psi_profile,n_profile,uself_profile, q_profile, z, res= mgrf_asymm.mgrf_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 
 
-tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+tension = 0#energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])))
 
 stop = timeit.default_timer()

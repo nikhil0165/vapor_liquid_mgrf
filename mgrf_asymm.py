@@ -90,7 +90,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
 
         psi.change_scales(1)
         psi_g = psi['g']
-        print('PB done')
+        #print('PB done')
         n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g,uself_guess,eta_guess,uself_bulk,n_bulk,valency,vol_ions,psi_bulk,eta_bulk,equal_vols)
 
         convergence_tot = np.true_divide(np.linalg.norm(n_profile - nconc_guess),np.linalg.norm(nconc_guess))
