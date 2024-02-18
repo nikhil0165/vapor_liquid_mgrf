@@ -1,3 +1,5 @@
+import numpy as np
+
 from packages import *
 from numerical_param import*
 
@@ -40,24 +42,25 @@ def kappa_profile(n_profile,valency,  epsilon): #screening factor for all positi
     kappa = np.apply_along_axis(kappa_loc,1,n_profile,valency,epsilon)
     return kappa
 
-def interpolator(psi_complete,nconc_complete,bounds,new_grid): # function to change grid points of psi and nconc fields
+def interpolator(psi_profile,n_profile,bounds,new_grid): # function to change grid points of psi and nconc fields
 
-    grid_points = len(psi_complete)
+    grid_points = len(psi_profile)
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
     zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = bounds)
+    z = dist.local_grids(zbasis)
 
     # Fields
-    n_ions = len(nconc_complete[0,:])
+    n_ions = len(n_profile[0,:])
     nconc = np.zeros((new_grid,n_ions))
     psi = dist.Field(name = 'psi',bases = zbasis)
-    psi['g'] = psi_complete
+    psi['g'] = psi_profile
     psi.change_scales(new_grid/grid_points)
 
     nconc0 = dist.Field(name = 'nconc0',bases = zbasis)
     nconc1 = dist.Field(name = 'nconc1',bases = zbasis)
-    nconc0['g'] = nconc_complete[:,0]
-    nconc1['g'] = nconc_complete[:,1]
+    nconc0['g'] = n_profile[:,0]
+    nconc1['g'] = n_profile[:,1]
     nconc0.change_scales(new_grid/grid_points)
     nconc1.change_scales(new_grid/grid_points)
     nconc[:,0] = nconc0['g']
@@ -65,14 +68,18 @@ def interpolator(psi_complete,nconc_complete,bounds,new_grid): # function to cha
     if n_ions==4:
         nconc2 = dist.Field(name = 'nconc2',bases = zbasis)
         nconc3 = dist.Field(name = 'nconc3',bases = zbasis)
-        nconc2['g'] = nconc_complete[:,2]
-        nconc3['g'] = nconc_complete[:,3]
+        nconc2['g'] = n_profile[:,2]
+        nconc3['g'] = n_profile[:,3]
         nconc2.change_scales(new_grid/grid_points)
         nconc3.change_scales(new_grid/grid_points)
         nconc[:,2] = nconc2['g']
         nconc[:,3] = nconc3['g']
 
-    return psi['g'], nconc
+    Z = dist.Field(name = 'Z',bases = zbasis)
+    Z['g'] = np.squeeze(z)
+    Z.change_scales(new_grid/grid_points)
+
+    return psi['g'], nconc#, Z['g']
 
 
 def res_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon): # calculate the residual of gauss law
