@@ -20,7 +20,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
     psi_g = np.copy(psi_guess)
     eta_guess=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
     uself_guess = selfe_vap_liq.uself_complete(nconc_guess,n_bulk1,n_bulk2,rad_ions,valency,domain,epsilon)
-    uself = np.copy(uself_guess)
+
     print('selfe_done before the loop')
 
     # Bulk properties
@@ -57,7 +57,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
         lift = lambda A, n: d3.Lift(A, lift_basis, n)
         c0 = dist.Field(bases = zbasis)
         c1 = dist.Field(bases = zbasis)
-        n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g,uself,eta_guess,uself_bulk,n_bulk,valency,vol_ions,psi_bulk,eta_bulk,equal_vols)
+        n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g,uself_guess,eta_guess,uself_bulk,n_bulk,valency,vol_ions,psi_bulk,eta_bulk,equal_vols)
         coeffs = coeffs/epsilon
 
         # lambda function for RHS, dedalus understands lambda functions can differentiate it for newton iteration
@@ -90,7 +90,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
 
         psi.change_scales(1)
         psi_g = psi['g']
-        #print('PB done')
+        print('PB done')
         n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g,uself_guess,eta_guess,uself_bulk,n_bulk,valency,vol_ions,psi_bulk,eta_bulk,equal_vols)
 
         convergence_tot = np.true_divide(np.linalg.norm(n_profile - nconc_guess),np.linalg.norm(nconc_guess))

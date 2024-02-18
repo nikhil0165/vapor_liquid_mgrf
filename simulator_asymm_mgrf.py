@@ -47,6 +47,7 @@ if T_star_in != T_star:
     psi_profile = psi_profile*psi2
     lambda1 = (1/calculate.kappa_loc(n_bulk1,valency,epsilon_s))
     domain =(int_width1 + int_width2)*lambda1
+    print('Phase coexistence calculation done')
 
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
