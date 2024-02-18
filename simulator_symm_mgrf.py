@@ -29,8 +29,8 @@ file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width1_in),2)) +
 
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
-    psi_complete = np.array(file['psi'])
-    nconc_complete = np.array(file['nconc'])
+    psi_profile = np.array(file['psi'])
+    n_profile = np.array(file['nconc'])
     z = np.array(file['z'])
     n_bulk1 = np.array(file['n_bulk1'])
     n_bulk2 = np.array(file['n_bulk2'])
@@ -41,21 +41,21 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
 if T_star_in != T_star:
     p = (n_bulk2 - n_bulk1) / 2
     q = (n_bulk2 + n_bulk1) / 2
-    nconc_complete = np.true_divide(nconc_complete - q,p)
+    n_profile = np.true_divide(n_profile - q,p)
 
     n_bulk1, n_bulk2 = coexist_symm.binodal([n_bulk1[0]*(c_max/c_max_in),n_bulk2[0]*(c_max/c_max_in)],valency,rad_ions,vol_sol,epsilon_s)
     p = (n_bulk2 - n_bulk1) / 2
     q = (n_bulk2 + n_bulk1) / 2
-    nconc_complete = np.multiply(p,nconc_complete) + q
+    n_profile = np.multiply(p,n_profile) + q
     domain =(int_width1 + int_width2)*(1/calculate.kappa_loc(n_bulk1,valency,epsilon_s))
 
 
 # The EDL structure calculations start here
-psi_complete = np.zeros((len(nconc_complete)))
-psi_complete,nconc_complete,uself_complete, q_complete, z, res= mgrf_symm.mgrf_symm(psi_complete,nconc_complete,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_profile = np.zeros((len(n_profile)))
+psi_profile,n_profile,uself_profile, q_profile, z, res= mgrf_symm.mgrf_symm(psi_profile,n_profile,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 
-tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_complete,nconc_complete,uself_complete,n_bulk1,n_bulk2,0,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profile,n_bulk1,n_bulk2,0,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
 
 stop = timeit.default_timer()
@@ -83,7 +83,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
 
     # Storing numerical parameters as attributes of the root group
     file.attrs['s_conv'] = s_conv
-    file.attrs['N_grid'] = len(uself_complete)
+    file.attrs['N_grid'] = len(uself_profile)
     file.attrs['quads'] = quads
     file.attrs['grandfe_quads'] = grandfe_quads
     file.attrs['dealias'] = dealias
@@ -103,17 +103,17 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
 
     # Store all spatial profiles  (SI units)
     file.create_dataset('z_d',data = z * l_c)
-    file.create_dataset('psi_d',data = psi_complete * psi_c)
-    file.create_dataset('nconc_d',data = nconc_complete * nconc_c / N_A)
-    file.create_dataset('uself_d',data = uself_complete * (1 / beta))
-    file.create_dataset('charge_d',data = q_complete * (nconc_c * ec))
+    file.create_dataset('psi_d',data = psi_profile * psi_c)
+    file.create_dataset('nconc_d',data = n_profile * nconc_c / N_A)
+    file.create_dataset('uself_d',data = uself_profile * (1 / beta))
+    file.create_dataset('charge_d',data = q_profile * (nconc_c * ec))
 
     # Store all spatial profiles (non-dimensional)
     file.create_dataset('z',data = z)
-    file.create_dataset('psi',data = psi_complete)
-    file.create_dataset('nconc',data = nconc_complete)
-    file.create_dataset('uself',data = uself_complete)
-    file.create_dataset('charge',data = q_complete)
+    file.create_dataset('psi',data = psi_profile)
+    file.create_dataset('nconc',data = n_profile)
+    file.create_dataset('uself',data = uself_profile)
+    file.create_dataset('charge',data = q_profile)
     file.create_dataset('n_bulk1',data = n_bulk1)
     file.create_dataset('n_bulk2',data = n_bulk2)
 

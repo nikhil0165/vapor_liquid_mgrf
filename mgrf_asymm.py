@@ -1,3 +1,5 @@
+import gc
+
 from packages import *
 import num_concn
 import calculate
@@ -7,7 +9,7 @@ from numerical_param import*
 
 def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain, epsilon):
     
-    print('selfe_ratio= ' + str(selfe_ratio))
+    print(f'num_ratio={num_ratio}')
     grid_points = len(psi_guess)
     bounds = (0,domain)
     Lz = bounds[1]
@@ -16,9 +18,9 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
     psi_bulk = psi2
 
     psi_g = np.copy(psi_guess)
-    eta_profile=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
-    uself_profile = selfe_vap_liq.uself_complete(nconc_guess,n_bulk1,n_bulk2,rad_ions,valency,domain,epsilon)
-    uself = np.copy(uself_profile)
+    eta_guess=calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
+    uself_guess = selfe_vap_liq.uself_complete(nconc_guess,n_bulk1,n_bulk2,rad_ions,valency,domain,epsilon)
+    uself = np.copy(uself_guess)
     print('selfe_done before the loop')
 
     # Bulk properties
@@ -30,9 +32,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
     vol_diff = np.abs(vol_ions - vol_sol)
     equal_vols = np.all(vol_diff < vol_sol * 1e-5)
 
-    n_profile, coeffs = num_concn.nconc_mgrf(psi_g, uself_profile, eta_profile, uself_bulk, n_bulk, valency, vol_ions, psi_bulk,eta_bulk, equal_vols)
-    coeffs = coeffs/epsilon
-
+    n_profile = None
     Z = None
 
     # Solving the matrix
@@ -57,7 +57,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
         lift = lambda A, n: d3.Lift(A, lift_basis, n)
         c0 = dist.Field(bases = zbasis)
         c1 = dist.Field(bases = zbasis)
-        n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions,psi_bulk,eta_bulk, equal_vols)
+        n_profile_useless, coeffs = num_concn.nconc_mgrf(psi_g,uself,eta_guess,uself_bulk,n_bulk,valency,vol_ions,psi_bulk,eta_bulk,equal_vols)
         coeffs = coeffs/epsilon
 
         # lambda function for RHS, dedalus understands lambda functions can differentiate it for newton iteration
@@ -73,7 +73,6 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
 
         # Boundary conditions
         problem.add_equation("(psi)(z=0) = 0")
-        #problem.add_equation("dz(psi)(z=Lz) = 0")
         problem.add_equation("(psi)(z=Lz) = psi_bulk")
 
         # Initial Guess
@@ -92,28 +91,29 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
         psi.change_scales(1)
         psi_g = psi['g']
         #print('PB done')
-        n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g, uself, eta_profile, uself_bulk, n_bulk, valency, vol_ions,psi_bulk, eta_bulk,equal_vols)
-        uself_profile = selfe_vap_liq.uself_complete(n_profile, n_bulk1,n_bulk2,rad_ions, valency, domain,epsilon)
-        #print('selfe_done in the loop')
-        convergence_tot = np.true_divide(np.linalg.norm(uself_profile - uself),np.linalg.norm(uself))
+        n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g,uself_guess,eta_guess,uself_bulk,n_bulk,valency,vol_ions,psi_bulk,eta_bulk,equal_vols)
 
-        # mixing old self-energy and new self-energy
-        uself = selfe_ratio*uself_profile + (1-selfe_ratio)*uself
+        convergence_tot = np.true_divide(np.linalg.norm(n_profile - nconc_guess),np.linalg.norm(nconc_guess))
 
-        # mixing old eta and new_eta
-        eta_profile = eta_ratio*calculate.eta_profile(n_profile,vol_ions,vol_sol) +(1-eta_ratio)*eta_profile
-        q_profile = calculate.charge_density(n_profile, valency)
+        nconc_guess = num_ratio*n_profile + (1-num_ratio)*nconc_guess
+
+        uself_guess = selfe_vap_liq.uself_complete(nconc_guess,n_bulk1,n_bulk2,rad_ions,valency,domain,epsilon)
+        eta_guess = calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
 
         Z = np.squeeze(z)
         
-        # deleting dedalus fields as precuation
+        # deleting dedalus fields as precaution to save memory
         del coords,dist,zbasis,z,psi,tau_1,tau_2,dz,lift_basis,lift,problem,solver,pert_norm,c0,c1,boltz0,boltz1
+        gc.collect()
 
         p = p+1
         if p%10==0:
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))
 
+    uself_profile= selfe_vap_liq.uself_complete(n_profile,n_bulk1,n_bulk2,rad_ions,valency,domain,epsilon)
+    eta_profile = calculate.eta_profile(n_profile,vol_ions,vol_sol)
     q_profile = calculate.charge_density(n_profile, valency)
+
     res= calculate.res_asymm(psi_g,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon)
     
     print("Gauss's law residual for MGRF is is = " + str(res))
