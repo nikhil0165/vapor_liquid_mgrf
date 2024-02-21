@@ -1,5 +1,3 @@
-import numpy as np
-
 from numerical_param import *
 import mgrf_symm
 import energy_vap_liq
@@ -55,11 +53,12 @@ psi_profile = np.zeros((len(n_profile)))
 psi_profile,n_profile,uself_profile, q_profile, z, res= mgrf_symm.mgrf_symm(psi_profile,n_profile,n_bulk1,n_bulk2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 
+time = timeit.default_timer() - start
+print(f'time = {time}')
+
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profile,n_bulk1,n_bulk2,0,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * rad_ions[0],3)/abs(valency[0] * valency[1])))
 
-stop = timeit.default_timer()
-print('Time: ',stop - start)
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
 file_name = str(round(T_star,5)) + '_' + str(round(float(int_width1),2)) + '_' + str(round(float(int_width2),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1],2)) + '_' + str(round(rad_sol_d,2))
