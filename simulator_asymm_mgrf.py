@@ -23,7 +23,7 @@ variables = {name: value for name,value in input_physical.__dict__.items() if no
 (locals().update(variables))
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width1_in),2)) + '_' + str(round(float(int_width2_in),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2))
+file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width1_in),2)) + '_' + str(round(float(int_width2_in),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2)) + '_' + str(int(N_grid))
 
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
@@ -64,11 +64,12 @@ if T_star_in != T_star:
 
 ### The EDL structure calculations start here
 
-#psi_profile, n_profile = calculate.interpolator(psi_profile,n_profile,(0,z[-1]),N_grid)
-#print(len(psi_profile))
+psi_profile, n_profile = calculate.interpolator(psi_profile,n_profile,(0,domain),N_grid)
+print(len(psi_profile))
 
-psi_profile,n_profile,uself_profile, q_profile, z, res= mgrf_asymm.mgrf_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_profile,n_profile,uself_profile, q_profile, z, res, midplane_psi= mgrf_asymm.mgrf_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
+print(f'midplane_psi: {midplane_psi}')
 
 time = timeit.default_timer() - start
 print(f'time = {time}')
@@ -77,7 +78,7 @@ tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profil
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])))
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width1), 2)) + '_' + str(round(float(int_width2), 2)) + '_' + str(round(rad_ions_d[0],2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
+file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width1), 2)) + '_' + str(round(float(int_width2), 2)) + '_' + str(round(rad_ions_d[0],2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2)) + '_' + str(len(psi_profile))
 
 ## Create the output directory if it doesn't exist
 
@@ -140,6 +141,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     file.attrs['tension'] = tension  # nondimensional
     file.attrs['tension_d'] = tension * (1 / beta)  # SI units
     file.attrs['tension_star'] =tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])
+    file.attrs['midplane_psi'] = midplane_psi
 
 
 

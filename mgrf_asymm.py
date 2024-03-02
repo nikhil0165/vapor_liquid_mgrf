@@ -31,6 +31,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
     # Checking if all molecules have same excluded volume
     vol_diff = np.abs(vol_ions - vol_sol)
     equal_vols = np.all(vol_diff < vol_sol * 1e-5)
+    print(f'equal vols: {equal_vols}')
 
     n_profile = None
     Z = None
@@ -107,17 +108,17 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
         gc.collect()
 
         p = p+1
-        if p%10==0:
+        if p%1==0:
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))
 
     uself_profile= selfe_vap_liq.uself_complete(n_profile,n_bulk1,n_bulk2,rad_ions,valency,domain,epsilon)
     eta_profile = calculate.eta_profile(n_profile,vol_ions,vol_sol)
     q_profile = calculate.charge_density(n_profile, valency)
 
-    res= calculate.res_asymm(psi_g,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon)
+    res, midplane_psi= calculate.res_asymm(psi_g,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon)
     
-    print("Gauss's law residual for MGRF is is = " + str(res))
+    print("Gauss's law residual for MGRF is = " + str(res))
 
-    return psi_g, n_profile,uself_profile,q_profile,Z, res
+    return psi_g, n_profile,uself_profile,q_profile,Z, res, midplane_psi
 
  

@@ -109,5 +109,5 @@ def res_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon)
     res[nodes] = np.linalg.norm(n_profile[0] - n_bulk1)
     res[nodes+1] = np.linalg.norm(n_profile[-1] - n_bulk2)
     
-    return np.max(np.abs(res))
+    return np.max(np.abs(res)), psi(z = 0.5*bounds[1]).evaluate()['g'][0]
 

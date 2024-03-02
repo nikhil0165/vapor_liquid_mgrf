@@ -22,7 +22,7 @@ input_physical = importlib.import_module(module_name)
 variables = {name: value for name, value in input_physical.__dict__.items() if not name.startswith('__')}
 (locals().update(variables))
 
-concns_psi = [0.067545094841168,2.54891321086623,1.86014594829533]
+concns_psi = [0.067545094841168, 2.54891321086623, 1.86014594829533]
 n_bulk1, n_bulk2, psi2 = coexist_asymm.binodal(concns_psi,valency,rad_ions,vol_sol,epsilon_s)
 print(n_bulk1,n_bulk2,psi2)
 n_profile, psi_profile, domain,z = num_concn.nguess_asymm(n_bulk1,n_bulk2,psi2,valency,int_width1,int_width2,epsilon_s,N_grid)
@@ -43,7 +43,7 @@ tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profil
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])))
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width1), 2)) + '_' + str(round(float(int_width2), 2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2))
+file_name = str(round(T_star, 5)) + '_' + str(round(float(int_width1), 2)) + '_' + str(round(float(int_width2), 2)) + '_' + str(round(rad_ions_d[0], 2))  + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d, 2)) + '_' + str(len(psi_profile))
 
 ### Create the output directory if it doesn't exist
 
@@ -66,7 +66,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
 
     # Storing numerical parameters as attributes of the root group
     file.attrs['s_conv'] = s_conv
-    file.attrs['N_grid'] = len(uself_profile)
+    file.attrs['N_grid'] = len(psi_profile)
     file.attrs['quads'] = quads
     file.attrs['grandfe_quads'] = grandfe_quads
     file.attrs['dealias'] = dealias
