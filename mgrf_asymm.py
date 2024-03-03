@@ -108,7 +108,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
         gc.collect()
 
         p = p+1
-        if p%1==0:
+        if p%10==0:
             print('converg at iter = ' + str(p) + ' is ' + str(convergence_tot))
 
     uself_profile= selfe_vap_liq.uself_complete(n_profile,n_bulk1,n_bulk2,rad_ions,valency,domain,epsilon)
