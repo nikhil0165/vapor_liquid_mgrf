@@ -1,3 +1,5 @@
+import numpy as np
+
 import calculate
 from numerical_param import *
 import mgrf_asymm
@@ -64,15 +66,18 @@ if T_star_in != T_star:
 
 ### The EDL structure calculations start here
 
-psi_profile, n_profile = calculate.interpolator(psi_profile,n_profile,(0,domain),N_grid)
+psi_profile, n_profile = calculate.rescaler(psi_profile,n_profile,(0,domain),N_grid)
 print(len(psi_profile))
 
-psi_profile,n_profile,uself_profile, q_profile, z, res, midplane_psi= mgrf_asymm.mgrf_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
+psi_profile,n_profile,uself_profile, q_profile, Z, res, midplane_psi= mgrf_asymm.mgrf_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('MGRF_done')
 print(f'midplane_psi: {midplane_psi}')
 
 time = timeit.default_timer() - start
 print(f'time = {time}')
+
+psi_interp = calculate.interpolator(psi_profile,domain, np.arange(0.05,1.0,0.1)*domain)
+print(psi_interp)
 
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])))
@@ -136,6 +141,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5','w') as file:
     file.create_dataset('charge',data = q_profile)
     file.create_dataset('n_bulk1',data = n_bulk1)
     file.create_dataset('n_bulk2',data = n_bulk2)
+    file.create_dataset('psi_interp', data = psi_interp)
 
     # Store free energy
     file.attrs['tension'] = tension  # nondimensional

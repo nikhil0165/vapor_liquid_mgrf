@@ -33,7 +33,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
     equal_vols = np.all(vol_diff < vol_sol * 1e-5)
     print(f'equal vols: {equal_vols}')
 
-    n_profile = None
+    n_profile = nconc_guess
     Z = None
 
     # Solving the matrix
@@ -102,7 +102,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
         eta_guess = calculate.eta_profile(nconc_guess,vol_ions,vol_sol)
 
         Z = np.squeeze(z)
-        
+
         # deleting dedalus fields as precaution to save memory
         del coords,dist,zbasis,z,psi,tau_1,tau_2,dz,lift_basis,lift,problem,solver,pert_norm,c0,c1,boltz0,boltz1
         gc.collect()

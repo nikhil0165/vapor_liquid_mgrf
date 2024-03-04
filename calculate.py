@@ -42,7 +42,23 @@ def kappa_profile(n_profile,valency,  epsilon): #screening factor for all positi
     kappa = np.apply_along_axis(kappa_loc,1,n_profile,valency,epsilon)
     return kappa
 
-def interpolator(psi_profile,n_profile,bounds,new_grid): # function to change grid points of psi and nconc fields
+def interpolator(psi_profile,domain,points):
+
+    grid_points = len(psi_profile)
+    coords = d3.CartesianCoordinates('z')
+    dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
+    zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = (0,domain))
+
+    psi = dist.Field(name = 'psi',bases = zbasis)
+    psi['g'] = psi_profile
+
+    psi_answer = np.zeros(len(points))
+    for i in range(0,len(points)):
+        psi_answer[i] = psi(z = points[i]).evaluate()['g'][0]
+
+    return psi_answer
+
+def rescaler(psi_profile,n_profile,bounds,new_grid): # function to change grid points of psi and nconc fields
 
     grid_points = len(psi_profile)
     coords = d3.CartesianCoordinates('z')
@@ -103,8 +119,8 @@ def res_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon)
     slope_end = grad_psi(z = bounds[1]).evaluate()['g'][0]
     res = np.zeros(nodes+2)
     
-    res[0] = slope_0
-    res[nodes-1] = slope_end
+    res[0] = psi(z = 0).evaluate()['g'][0]
+    res[nodes-1] = psi(z = bounds[1]).evaluate()['g'][0] - psi2
     res[1:nodes-1] = lap_psi['g'][1:nodes-1] + q_profile[1:nodes-1]/epsilon
     res[nodes] = np.linalg.norm(n_profile[0] - n_bulk1)
     res[nodes+1] = np.linalg.norm(n_profile[-1] - n_bulk2)
