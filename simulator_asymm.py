@@ -2,7 +2,7 @@ from numerical_param import *
 import num_concn
 import energy_vap_liq
 import coexist_asymm
-import poisson_interface
+import calculate
 import mgrf_asymm
 
 from physical_param_asymm import *
@@ -37,6 +37,9 @@ print(psi_profile[0:5])
 
 time = timeit.default_timer() - start
 print(f'time = {time}')
+
+psi_interp = calculate.interpolator(psi_profile,domain, np.arange(0.0,1.05,0.1)*domain)
+print(f'psi_interp: {psi_interp}')
 
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 
@@ -101,6 +104,7 @@ with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'w') as file:
     file.create_dataset('charge',data = q_profile)
     file.create_dataset('n_bulk1',data = n_bulk1)
     file.create_dataset('n_bulk2',data = n_bulk2)
+    file.create_dataset('psi_interp',data = psi_interp)
 
     # Store free energy
     file.attrs['tension'] = tension # nondimensional

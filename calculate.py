@@ -64,7 +64,6 @@ def rescaler(psi_profile,n_profile,bounds,new_grid): # function to change grid p
     coords = d3.CartesianCoordinates('z')
     dist = d3.Distributor(coords,dtype = np.float64)  # No mesh for serial / automatic parallelization
     zbasis = d3.Chebyshev(coords['z'],size = grid_points,bounds = bounds)
-    z = dist.local_grids(zbasis)
 
     # Fields
     n_ions = len(n_profile[0,:])
@@ -79,8 +78,8 @@ def rescaler(psi_profile,n_profile,bounds,new_grid): # function to change grid p
     nconc1['g'] = n_profile[:,1]
     nconc0.change_scales(new_grid/grid_points)
     nconc1.change_scales(new_grid/grid_points)
-    nconc[:,0] = nconc0['g']
-    nconc[:,1] = nconc1['g']
+    nconc[:,0] = nconc0.allgather_data('g')
+    nconc[:,1] = nconc1.allgather_data('g')
     if n_ions==4:
         nconc2 = dist.Field(name = 'nconc2',bases = zbasis)
         nconc3 = dist.Field(name = 'nconc3',bases = zbasis)
@@ -88,14 +87,11 @@ def rescaler(psi_profile,n_profile,bounds,new_grid): # function to change grid p
         nconc3['g'] = n_profile[:,3]
         nconc2.change_scales(new_grid/grid_points)
         nconc3.change_scales(new_grid/grid_points)
-        nconc[:,2] = nconc2['g']
-        nconc[:,3] = nconc3['g']
+        nconc[:,2] = nconc2.allgather_data('g')
+        nconc[:,3] = nconc3.allgather_data('g')
 
-    Z = dist.Field(name = 'Z',bases = zbasis)
-    Z['g'] = np.squeeze(z)
-    Z.change_scales(new_grid/grid_points)
+    return psi.allgather_data('g'), nconc
 
-    return psi['g'], nconc#, Z['g']
 
 
 def res_asymm(psi_profile,n_profile,n_bulk1,n_bulk2,psi2,valency,bounds,epsilon): # calculate the residual of gauss law

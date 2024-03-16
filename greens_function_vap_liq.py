@@ -41,7 +41,7 @@ def Gcap_free(grid_points,s,domain,epsilon): # function for \hat{Go}
         pert_norm0 = sum(pert0.allreduce_data_norm('c',2) for pert0 in solver0.perturbations)
 
     Pz.change_scales(1)
-    Pz = Pz['g']
+    Pz = Pz.allgather_data('g')
     Qz = -Pz
 
     ## Sturm-Liouville for G
@@ -75,6 +75,8 @@ def Gcap_full(n_profile,n_bulk1,n_bulk2,valency,s,domain,epsilon): # function fo
     omega_b1 = np.sqrt(s*s + calculate.kappa_sqr(n_bulk1,valency,epsilon))
     omega_b2 = np.sqrt(s*s + calculate.kappa_sqr(n_bulk2,valency,epsilon))
     omega_min = min(omega_b1,omega_b2,np.min(np.sqrt(omega_sqr['g'])))
+    Pzo = omega_b1
+    Qzo = -omega_b2
 
     # Fields for G(Pz or log(U))
     Pz = dist.Field(name = 'Pz',bases = zbasis)
@@ -85,10 +87,10 @@ def Gcap_full(n_profile,n_bulk1,n_bulk2,valency,s,domain,epsilon): # function fo
     problem.add_equation("-dz(Pz) + omega_sqr + lift(tau_1,-1) = Pz**2")
 
     # Boundary conditions for Pz
-    problem.add_equation("Pz(z=0) = omega_b1")
+    problem.add_equation("Pz(z=0) = Pzo")
 
     # Initial guess for Pz
-    Pz['g'] = omega_b1
+    Pz['g'] = Pzo
 
     # Solver
     solver1 = problem.build_solver(ncc_cutoff = ncc_cutoff_greens)
@@ -101,7 +103,7 @@ def Gcap_full(n_profile,n_bulk1,n_bulk2,valency,s,domain,epsilon): # function fo
         pert_norm1 = sum(pert1.allreduce_data_norm('c',2) for pert1 in solver1.perturbations)
 
     Pz.change_scales(1)
-    Pz = Pz['g']
+    Pz = Pz.allgather_data('g')
 
     # Fields for G(Qz or log(V))
     Qz = dist.Field(name = 'Qz',bases = zbasis)
@@ -112,10 +114,10 @@ def Gcap_full(n_profile,n_bulk1,n_bulk2,valency,s,domain,epsilon): # function fo
     problem1.add_equation("-dz(Qz) + omega_sqr + lift(tau_1,-1) = Qz**2")
 
     # Boundary conditions for Qz
-    problem1.add_equation("Qz(z=Lz) = -omega_b2")
+    problem1.add_equation("Qz(z=Lz) = Qzo")
 
     # Initial guess for Qz
-    Qz['g'] = -omega_b2
+    Qz['g'] = Qzo
 
     # Solver
     solver2 = problem1.build_solver(ncc_cutoff = ncc_cutoff_greens)
@@ -129,7 +131,7 @@ def Gcap_full(n_profile,n_bulk1,n_bulk2,valency,s,domain,epsilon): # function fo
         #print(pert_norm2)
 
     Qz.change_scales(1)
-    Qz = Qz['g']
+    Qz = Qz.allgather_data('g')
 
     ## Sturm-Liouville for G
     G = (-1 / epsilon) * np.true_divide(1,Qz - Pz)

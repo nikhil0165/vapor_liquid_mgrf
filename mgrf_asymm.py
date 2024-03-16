@@ -1,5 +1,3 @@
-import gc
-
 from packages import *
 import num_concn
 import calculate
@@ -90,7 +88,7 @@ def mgrf_asymm(psi_guess,nconc_guess,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_i
             s = s + 1
 
         psi.change_scales(1)
-        psi_g = psi['g']
+        psi_g = psi.allgather_data('g')
         #print('PB done')
         n_profile,coeff_useless = num_concn.nconc_mgrf(psi_g,uself_guess,eta_guess,uself_bulk,n_bulk,valency,vol_ions,psi_bulk,eta_bulk,equal_vols)
 

@@ -1,5 +1,3 @@
-import numpy as np
-
 import calculate
 from numerical_param import *
 import mgrf_asymm
@@ -25,7 +23,7 @@ variables = {name: value for name,value in input_physical.__dict__.items() if no
 (locals().update(variables))
 
 file_dir = os.getcwd() + '/results' + str(abs(valency[0])) + '_' + str(abs(valency[1]))
-file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width1_in),2)) + '_' + str(round(float(int_width2_in),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2)) + '_' + str(int(N_grid))
+file_name = str(round(T_star_in,5)) + '_' + str(round(float(int_width1_in),2)) + '_' + str(round(float(int_width2_in),2)) + '_' + str(round(rad_ions_d[0],2)) + '_' + str(round(rad_ions_d[1], 2)) + '_' + str(round(rad_sol_d,2)) + '_' + str(int(512))
 
 with h5py.File(file_dir + '/mgrf_' + file_name + '.h5', 'r') as file:
     # Retrieve psi and nconc
@@ -76,8 +74,8 @@ print(f'midplane_psi: {midplane_psi}')
 time = timeit.default_timer() - start
 print(f'time = {time}')
 
-psi_interp = calculate.interpolator(psi_profile,domain, np.arange(0.05,1.0,0.1)*domain)
-print(psi_interp)
+psi_interp = calculate.interpolator(psi_profile,domain, np.arange(0.0,1.05,0.1)*domain)
+print(f'psi_interp: {psi_interp}')
 
 tension = energy_vap_liq.grandfe_mgrf_vap_liq(psi_profile,n_profile,uself_profile,n_bulk1,n_bulk2,psi2,valency,rad_ions,vol_ions,vol_sol,domain,epsilon_s)
 print('tension_star = ' + str(tension * 4 * pi * epsilon_s * pow(2 * sqrt(rad_ions[0]*rad_ions[1]),3)/abs(valency[0] * valency[1])))
